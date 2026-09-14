@@ -4,8 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-// O plugin do Google Services só é aplicado quando o google-services.json existe,
-// assim o projeto continua compilando antes da configuração do Firebase.
 if (file("google-services.json").exists()) {
     apply(plugin = libs.plugins.google.services.get().pluginId)
 }

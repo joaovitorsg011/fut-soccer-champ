@@ -132,7 +132,6 @@ private fun TeamCard(team: Team, onEdit: () -> Unit, onDelete: () -> Unit) {
     }
 }
 
-/** Mostra o escudo do time ou, na ausência dele, a sigla em um círculo. */
 @Composable
 fun TeamBadge(team: Team, size: Int = 40) {
     if (team.logoUrl.isNotBlank()) {

@@ -36,7 +36,6 @@ class ChampionshipRepository(private val firestore: FirebaseFirestore) {
         Unit
     }
 
-    /** Remove o campeonato e todos os documentos vinculados a ele. */
     suspend fun delete(id: String): Result<Unit> = runCatching {
         listOf("teams", "rounds", "matches").forEach { name ->
             firestore.collection(name).whereEqualTo("championshipId", id).get().await()

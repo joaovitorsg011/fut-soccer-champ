@@ -1,7 +1,5 @@
 rules_version = '2';
 
-// Regras de segurança do Cloud Firestore (RNF05).
-// Somente o dono do campeonato pode ler e escrever os dados vinculados a ele.
 service cloud.firestore {
   match /databases/{database}/documents {
 

@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import com.futsoccerchamp.presentation.common.AuthBackground
 import kotlinx.coroutines.delay
 
-/** Tela inicial exibida enquanto o app resolve se existe sessão ativa. */
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
     var visible by remember { mutableStateOf(false) }

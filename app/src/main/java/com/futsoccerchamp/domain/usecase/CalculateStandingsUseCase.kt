@@ -4,15 +4,6 @@ import com.futsoccerchamp.data.model.Match
 import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.domain.model.Standing
 
-/**
- * Calcula a classificação a partir das partidas encerradas.
- *
- * A tabela nunca é persistida: ela é sempre derivada dos resultados,
- * o que evita divergência entre o placar e a pontuação (RNF06).
- *
- * Pontuação: vitória 3, empate 1, derrota 0 (RF21).
- * Desempate: pontos, vitórias, saldo de gols, gols marcados (RF23).
- */
 class CalculateStandingsUseCase {
 
     operator fun invoke(teams: List<Team>, matches: List<Match>): List<Standing> {

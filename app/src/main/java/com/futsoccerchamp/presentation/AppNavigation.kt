@@ -33,8 +33,7 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
-            // A sessão do Firebase é persistida pelo SDK: se já houver usuário logado,
-            // a splash leva direto para a lista de campeonatos (RF04).
+
             SplashScreen(
                 onFinished = {
                     navController.replaceWith(if (userId == null) Routes.LOGIN else Routes.HOME)
@@ -88,8 +87,6 @@ fun AppNavigation() {
         }
     }
 
-    // Reage a login e logout depois da primeira composição, sem interferir
-    // na navegação normal entre splash, login e cadastro.
     var previousUserId by remember { mutableStateOf(userId) }
     LaunchedEffect(userId) {
         if (userId != previousUserId) {
@@ -99,7 +96,6 @@ fun AppNavigation() {
     }
 }
 
-/** Navega limpando toda a pilha anterior. */
 private fun NavHostController.replaceWith(route: String) {
     navigate(route) {
         popUpTo(graph.id) { inclusive = true }
@@ -107,7 +103,6 @@ private fun NavHostController.replaceWith(route: String) {
     }
 }
 
-/** Cria uma ViewModelProvider.Factory a partir de um construtor sem argumentos. */
 private fun <T : ViewModel> factory(builder: () -> T) = object : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <VM : ViewModel> create(modelClass: Class<VM>): VM = builder() as VM

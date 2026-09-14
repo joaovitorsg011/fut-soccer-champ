@@ -18,7 +18,6 @@ import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.domain.model.Standing
 import com.futsoccerchamp.presentation.common.EmptyState
 
-/** Estatísticas gerais derivadas das partidas já encerradas (RF27). */
 @Composable
 fun StatisticsSection(
     standings: List<Standing>,

@@ -67,8 +67,6 @@ class ChampionshipViewModel(
         }
     }
 
-    // ----- Campeonato -----
-
     fun updateChampionship(name: String, season: String, teamLimit: String, description: String) {
         val current = _uiState.value.championship ?: return
         val updated = current.copy(
@@ -83,8 +81,6 @@ class ChampionshipViewModel(
             }
         }
     }
-
-    // ----- Times -----
 
     fun addTeam(name: String, abbreviation: String, logoUrl: String) {
         val state = _uiState.value
@@ -123,8 +119,6 @@ class ChampionshipViewModel(
 
     fun deleteTeam(team: Team) = launchWithError { teamRepository.delete(team) }
 
-    // ----- Rodadas -----
-
     fun addRound() = launchWithError {
         val number = roundRepository.nextNumber(championshipId)
         roundRepository.create(Round(championshipId = championshipId, number = number))
@@ -132,7 +126,6 @@ class ChampionshipViewModel(
 
     fun deleteRound(round: Round) = launchWithError { roundRepository.delete(round) }
 
-    /** Gera todas as rodadas de turno único a partir dos times cadastrados (RF16). */
     fun generateAllRounds() {
         val state = _uiState.value
         if (state.teams.size < 2) return showError("Cadastre pelo menos 2 times.")
@@ -157,8 +150,6 @@ class ChampionshipViewModel(
             Result.success(Unit)
         }
     }
-
-    // ----- Partidas -----
 
     fun addMatch(roundId: String, homeTeamId: String, awayTeamId: String, date: String, time: String, place: String) {
         if (homeTeamId.isBlank() || awayTeamId.isBlank()) return showError("Selecione os dois times.")
@@ -208,8 +199,6 @@ class ChampionshipViewModel(
 
     fun consumeError() = update { copy(error = null) }
 
-    // ----- Infra -----
-
     private fun <T> observe(flow: kotlinx.coroutines.flow.Flow<T>, onEach: (T) -> Unit) {
         viewModelScope.launch {
             flow.catch { error -> update { copy(loading = false, error = error.message) } }
@@ -217,7 +206,6 @@ class ChampionshipViewModel(
         }
     }
 
-    /** A classificação é sempre derivada das partidas, nunca lida do banco (RNF06). */
     private fun recalculate() = update {
         copy(standings = calculateStandings(teams, matches))
     }

@@ -148,7 +148,6 @@ fun SignUpScreen(
     }
 }
 
-/** Fundo em tela cheia com o cartão do formulário sobreposto. */
 @Composable
 private fun AuthScaffold(
     title: String,

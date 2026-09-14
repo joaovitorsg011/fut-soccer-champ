@@ -13,10 +13,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.futsoccerchamp.R
 
-/**
- * Fundo compartilhado pelas telas de splash e login: imagem em tela cheia
- * com um degradê escuro por cima para manter o texto legível.
- */
 @Composable
 fun AuthBackground(content: @Composable BoxScope.() -> Unit) {
     Box(Modifier.fillMaxSize()) {

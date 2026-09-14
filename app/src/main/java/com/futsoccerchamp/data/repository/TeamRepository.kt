@@ -32,7 +32,6 @@ class TeamRepository(private val firestore: FirebaseFirestore) {
         Unit
     }
 
-    /** Remove o time junto com as partidas em que ele aparece. */
     suspend fun delete(team: Team): Result<Unit> = runCatching {
         val matches = firestore.collection("matches")
             .whereEqualTo("championshipId", team.championshipId).get().await()

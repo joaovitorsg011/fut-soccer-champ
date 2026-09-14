@@ -27,10 +27,6 @@ private val STEPS = listOf(
     "Sincronize o Gradle e rode o app novamente."
 )
 
-/**
- * Exibida quando o app roda sem o google-services.json.
- * Evita o crash do FirebaseApp e explica o que falta configurar.
- */
 @Composable
 fun FirebaseSetupScreen() {
     Surface(Modifier.fillMaxSize()) {

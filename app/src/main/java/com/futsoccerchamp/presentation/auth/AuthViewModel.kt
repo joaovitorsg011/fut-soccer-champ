@@ -24,7 +24,6 @@ class AuthViewModel(
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    /** null enquanto o estado inicial não foi resolvido. */
     val userId: StateFlow<String?> = repository.authState()
         .map { it?.uid }
         .stateIn(viewModelScope, SharingStarted.Eagerly, repository.currentUser?.uid)

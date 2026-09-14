@@ -50,7 +50,6 @@ import com.futsoccerchamp.presentation.teams.TeamFormDialog
 import com.futsoccerchamp.presentation.teams.TeamsTab
 import kotlinx.coroutines.launch
 
-/** Seções acessíveis pelo menu lateral. */
 private enum class Section(val label: String, val icon: ImageVector) {
     STANDINGS("Classificação", Icons.Default.Leaderboard),
     TEAMS("Times", Icons.Default.Groups),

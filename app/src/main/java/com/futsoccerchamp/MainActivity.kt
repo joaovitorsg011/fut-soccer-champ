@@ -15,8 +15,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Sem o google-services.json o SDK do Firebase não inicializa;
-        // nesse caso o app mostra as instruções em vez de quebrar.
         val firebaseReady = FirebaseApp.getApps(this).isNotEmpty()
 
         setContent {

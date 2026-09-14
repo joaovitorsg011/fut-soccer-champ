@@ -11,10 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-/**
- * Service locator simples. Mantém uma única instância de cada repositório
- * sem depender de uma biblioteca de injeção de dependência.
- */
 object FirebaseModule {
 
     private val auth: FirebaseAuth by lazy { Firebase.auth }

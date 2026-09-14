@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
-/** Formulário compartilhado pela criação e pela edição de campeonatos. */
 @Composable
 fun ChampionshipFormDialog(
     title: String,

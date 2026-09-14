@@ -20,7 +20,6 @@ class RoundRepository(private val firestore: FirebaseFirestore) {
         collection.add(round).await().id
     }
 
-    /** Remove a rodada e as partidas pertencentes a ela. */
     suspend fun delete(round: Round): Result<Unit> = runCatching {
         firestore.collection("matches").whereEqualTo("roundId", round.id).get().await()
             .documents.forEach { it.reference.delete().await() }

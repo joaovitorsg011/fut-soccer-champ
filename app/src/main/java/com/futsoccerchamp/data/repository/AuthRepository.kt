@@ -16,7 +16,6 @@ class AuthRepository(
     val currentUser: FirebaseUser?
         get() = auth.currentUser
 
-    /** Emite o usuário atual sempre que o estado de autenticação muda. */
     fun authState(): Flow<FirebaseUser?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { trySend(it.currentUser) }
         auth.addAuthStateListener(listener)

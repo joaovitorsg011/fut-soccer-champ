@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.data.model.Team
 
-/** Formulário compartilhado pela criação e pela edição de partidas. */
 @Composable
 fun MatchFormDialog(
     title: String,
