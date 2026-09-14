@@ -184,7 +184,7 @@ class ChampionshipViewModel(
         }
 
         launchWithError {
-            state.rounds.forEach { roundRepository.delete(it) }
+            roundRepository.deleteByChampionship(championshipId)
             generateRounds(state.teams).forEach { generated ->
                 val roundId = roundRepository
                     .create(Round(championshipId = championshipId, number = generated.number))
@@ -221,25 +221,12 @@ class ChampionshipViewModel(
 
     fun registerResult(
         match: Match,
-        homeGoals: String,
-        awayGoals: String,
+        homeGoals: Int,
+        awayGoals: Int,
         goals: Map<String, Int>,
         saves: Map<String, Int>
-    ) {
-        val home = homeGoals.toIntOrNull()
-        val away = awayGoals.toIntOrNull()
-        if (home == null || away == null || home < 0 || away < 0) {
-            return showError("Informe um placar válido.")
-        }
-
-        val state = _uiState.value
-        val homeAssigned = state.playersOf(match.homeTeamId).sumOf { goals[it.id] ?: 0 }
-        val awayAssigned = state.playersOf(match.awayTeamId).sumOf { goals[it.id] ?: 0 }
-        if (homeAssigned > home || awayAssigned > away) {
-            return showError("Os gols dos jogadores excedem o placar informado.")
-        }
-
-        launchWithError { matchRepository.registerResult(match.id, home, away, goals, saves) }
+    ) = launchWithError {
+        matchRepository.registerResult(match.id, homeGoals, awayGoals, goals, saves)
     }
 
     fun clearResult(match: Match) = launchWithError { matchRepository.clearResult(match.id) }

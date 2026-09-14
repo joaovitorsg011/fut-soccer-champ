@@ -160,14 +160,18 @@ O cartão da partida reproduz a leitura de um placar esportivo: escudo e nome de
 extremidades e o resultado em destaque ao centro. O próprio placar é o controle — tocá-lo abre o
 registro do resultado. Não há botões auxiliares de adicionar, editar ou remover no cartão.
 
+No registro, o placar não é digitado: toca-se no escudo de um time para destacá-lo e ver seu elenco,
+e os gols são lançados jogador a jogador. O placar exibido é a soma desses lançamentos, o que
+garante que todo gol do resultado tenha um autor identificado.
+
 | ID | Requisito | Status |
 |----|-----------|--------|
 | RF23 | Apresentar cada partida como cartão com escudo, nome e placar em destaque | Implementado |
 | RF24 | Abrir o registro do resultado ao tocar no placar, sem botões auxiliares no cartão | Implementado |
-| RF25 | Registrar o placar da partida | Implementado |
-| RF26 | Atribuir os gols aos jogadores de cada time | Implementado |
+| RF25 | Selecionar o time tocando em seu escudo, destacando-o e listando seu elenco | Implementado |
+| RF26 | Atribuir os gols aos jogadores do time selecionado | Implementado |
 | RF27 | Registrar o número de defesas do goleiro | Implementado |
-| RF28 | Recusar atribuição de gols acima do placar informado | Implementado |
+| RF28 | Compor o placar somando os gols atribuídos aos jogadores de cada time | Implementado |
 | RF29 | Corrigir ou limpar um resultado já registrado | Implementado |
 
 ### 4.7 Classificação
@@ -368,12 +372,14 @@ a zero resultados             →  sorteio liberado novamente
 Sem essa trava, refazer a tabela invalidaria os jogos já disputados e, por consequência, a
 classificação.
 
-### 7.5 Registro individual
+### 7.6 Registro individual
 
-A soma dos gols atribuídos aos jogadores de um time não pode ultrapassar o placar informado. Gols
-não atribuídos são aceitos — o placar do time continua íntegro mesmo sem identificar o autor.
+O placar de cada time é a soma dos gols lançados para os seus jogadores. Não existe placar digitado
+manualmente, então todo gol da partida tem autor conhecido e a artilharia nunca diverge do
+resultado.
 
-Apenas jogadores marcados como goleiro aparecem no ranking de defesas.
+Apenas jogadores marcados como goleiro recebem defesas, e apenas eles aparecem no ranking de
+defesas.
 
 ---
 

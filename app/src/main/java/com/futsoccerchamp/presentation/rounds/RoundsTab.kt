@@ -61,7 +61,7 @@ fun RoundsTab(
     playersOf: (String) -> List<Player>,
     drawLocked: Boolean,
     onEditMatch: (Match, String, String, String, String, String) -> Unit,
-    onRegisterResult: (Match, String, String, Map<String, Int>, Map<String, Int>) -> Unit,
+    onRegisterResult: (Match, Int, Int, Map<String, Int>, Map<String, Int>) -> Unit,
     onClearResult: (Match) -> Unit,
     onGenerateRounds: () -> Unit,
     modifier: Modifier = Modifier

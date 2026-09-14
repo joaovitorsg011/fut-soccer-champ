@@ -26,4 +26,12 @@ class RoundRepository(private val firestore: FirebaseFirestore) {
         collection.document(round.id).delete().await()
         Unit
     }
+
+    suspend fun deleteByChampionship(championshipId: String): Result<Unit> = runCatching {
+        firestore.collection("matches").whereEqualTo("championshipId", championshipId).get().await()
+            .documents.forEach { it.reference.delete().await() }
+        collection.whereEqualTo("championshipId", championshipId).get().await()
+            .documents.forEach { it.reference.delete().await() }
+        Unit
+    }
 }
