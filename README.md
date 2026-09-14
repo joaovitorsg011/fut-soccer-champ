@@ -241,6 +241,11 @@ Brasileirão → 2026) — com times e jogadores pertencendo à liga. A temporad
 quais times disputam, suas rodadas e sua classificação, o que permite somar o histórico de um
 jogador ou de um time ao longo de todas as temporadas.
 
+## Documentação
+
+A especificação completa do projeto — requisitos funcionais e não funcionais, modelagem, regras de
+negócio e planejamento das entregas — está em [`docs/SPEC.md`](docs/SPEC.md).
+
 ## Equipe
 
 | Nome | RA |
