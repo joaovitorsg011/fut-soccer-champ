@@ -1,17 +1,18 @@
 package com.futsoccerchamp.domain.usecase
 
 import com.futsoccerchamp.data.model.Team
+import kotlin.random.Random
 
 data class GeneratedMatch(val homeTeamId: String, val awayTeamId: String)
 
 data class GeneratedRound(val number: Int, val matches: List<GeneratedMatch>)
 
-class GenerateRoundsUseCase {
+class GenerateRoundsUseCase(private val random: Random = Random.Default) {
 
     operator fun invoke(teams: List<Team>): List<GeneratedRound> {
         if (teams.size < 2) return emptyList()
 
-        val ids = teams.map { it.id }.toMutableList()
+        val ids = teams.map { it.id }.shuffled(random).toMutableList()
         if (ids.size % 2 != 0) ids.add(BYE)
 
         val total = ids.size

@@ -184,9 +184,9 @@ class ChampionshipViewModel(
     fun generateAllRounds() {
         val state = _uiState.value
         if (state.teams.size < 2) return showError("Cadastre pelo menos 2 times.")
-        if (state.rounds.isNotEmpty()) return showError("Apague as rodadas existentes antes de gerar.")
 
         launchWithError {
+            state.rounds.forEach { roundRepository.delete(it) }
             generateRounds(state.teams).forEach { generated ->
                 val roundId = roundRepository
                     .create(Round(championshipId = championshipId, number = generated.number))

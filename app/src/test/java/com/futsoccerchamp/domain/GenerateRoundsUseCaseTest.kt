@@ -2,13 +2,15 @@ package com.futsoccerchamp.domain
 
 import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.domain.usecase.GenerateRoundsUseCase
+import kotlin.random.Random
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GenerateRoundsUseCaseTest {
 
-    private val useCase = GenerateRoundsUseCase()
+    private val useCase = GenerateRoundsUseCase(Random(7))
 
     private fun teams(count: Int) = (1..count).map { Team(id = "t$it", name = "Time $it") }
 
@@ -40,5 +42,21 @@ class GenerateRoundsUseCaseTest {
     @Test
     fun `menos de dois times nao gera rodadas`() {
         assertTrue(useCase(teams(1)).isEmpty())
+    }
+
+    @Test
+    fun `sorteios diferentes produzem calendarios diferentes`() {
+        val first = GenerateRoundsUseCase(Random(1))(teams(8))
+        val second = GenerateRoundsUseCase(Random(2))(teams(8))
+
+        assertNotEquals(first.first().matches, second.first().matches)
+    }
+
+    @Test
+    fun `todo time joga uma vez por rodada`() {
+        useCase(teams(8)).forEach { round ->
+            val ids = round.matches.flatMap { listOf(it.homeTeamId, it.awayTeamId) }
+            assertEquals(ids.size, ids.toSet().size)
+        }
     }
 }

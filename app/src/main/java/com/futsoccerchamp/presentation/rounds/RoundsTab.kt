@@ -10,10 +10,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Scoreboard
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -64,18 +66,21 @@ fun RoundsTab(
     var matchToDelete by remember { mutableStateOf<Match?>(null) }
     var roundToDelete by remember { mutableStateOf<Round?>(null) }
 
+    var confirmGenerate by remember { mutableStateOf(false) }
+
     if (rounds.isEmpty()) {
         Column(modifier) {
             EmptyState(
                 title = "Nenhuma rodada criada",
-                subtitle = "Use o botão + para criar uma rodada, ou gere o calendário completo a partir dos times.",
+                subtitle = "Sorteie a tabela completa a partir dos times cadastrados, ou use o botão + para montar as rodadas manualmente.",
                 modifier = Modifier.weight(1f)
             )
-            OutlinedButton(
+            Button(
                 onClick = onGenerateRounds,
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
-                Text("Gerar rodadas automaticamente")
+                Icon(Icons.Default.Casino, contentDescription = null)
+                Text("Sortear tabela", modifier = Modifier.padding(start = 8.dp))
             }
         }
         return
@@ -86,6 +91,15 @@ fun RoundsTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            OutlinedButton(
+                onClick = { confirmGenerate = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Casino, contentDescription = null)
+                Text("Sortear tabela novamente", modifier = Modifier.padding(start = 8.dp))
+            }
+        }
         items(rounds, key = { it.id }) { round ->
             RoundCard(
                 round = round,
@@ -154,6 +168,19 @@ fun RoundsTab(
                 matchToDelete = null
             },
             onDismiss = { matchToDelete = null }
+        )
+    }
+
+    if (confirmGenerate) {
+        ConfirmDialog(
+            title = "Sortear tabela novamente",
+            message = "As rodadas e partidas atuais serão apagadas e um novo sorteio será feito com os times cadastrados.",
+            confirmLabel = "Sortear",
+            onConfirm = {
+                onGenerateRounds()
+                confirmGenerate = false
+            },
+            onDismiss = { confirmGenerate = false }
         )
     }
 

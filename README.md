@@ -32,7 +32,7 @@ Projeto desenvolvido para a disciplina de **Projeto de Software**.
 | **Campeonatos** | Criação, edição, listagem e exclusão em cascata |
 | **Times** | Cadastro com nome, sigla e escudo escolhido da galeria |
 | **Elenco** | Jogadores por time, com número da camisa e posição |
-| **Rodadas** | Criação manual ou geração automática do calendário (round-robin) |
+| **Rodadas** | Sorteio automático da tabela (round-robin) ou montagem manual |
 | **Partidas** | Confrontos com data, horário e local; registro e correção de placares |
 | **Súmula** | Gols por jogador e defesas do goleiro em cada partida |
 | **Classificação** | Tabela recalculada a cada resultado, com critérios de desempate |
@@ -108,6 +108,17 @@ para pontos, saldo e ordenação.
 ```
 1. Pontos  →  2. Vitórias  →  3. Saldo de gols  →  4. Gols marcados
 ```
+
+## Sorteio da tabela
+
+Com os times cadastrados, um toque em **Sortear tabela** gera todos os confrontos do turno pelo
+algoritmo do círculo (round-robin): os times são embaralhados, fixa-se o primeiro e os demais giram
+a cada rodada. Com 20 times o resultado são 19 rodadas de 10 jogos, cada dupla se enfrentando uma
+única vez e com o mando de campo alternando entre as rodadas. Times em número ímpar fazem um folgar
+por rodada.
+
+Como o sorteio parte de uma ordem aleatória, gerar de novo produz um calendário diferente — útil
+para refazer a tabela antes do campeonato começar.
 
 ## Fluxo de navegação
 
