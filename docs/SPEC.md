@@ -141,74 +141,84 @@ Padrões aplicados: **MVVM**, **Repository Pattern** e **Service Locator** para 
 
 ### 4.5 Rodadas e partidas
 
+A tabela é gerada inteiramente pelo sistema. O organizador não monta confrontos, não escolhe o
+mandante e não cria rodadas manualmente — o comportamento segue o de plataformas como Copa Fácil e
+a tabela do Campeonato Brasileiro, em que o calendário nasce pronto do sorteio.
+
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF17 | Sortear a tabela completa do turno a partir dos times cadastrados | Implementado |
-| RF18 | Refazer o sorteio, substituindo as rodadas existentes após confirmação | Implementado |
-| RF19 | Criar rodadas e confrontos manualmente | Implementado |
-| RF20 | Definir data, horário e local da partida | Implementado |
-| RF21 | Impedir confronto de um time contra ele mesmo | Implementado |
-| RF22 | Excluir rodada, removendo suas partidas | Implementado |
+| RF17 | Sortear a tabela completa do turno a partir dos times cadastrados, definindo confrontos e mando de campo automaticamente | Implementado |
+| RF18 | Não oferecer criação, edição ou exclusão manual de rodadas e confrontos | Planejado — AC2 |
+| RF19 | Permitir refazer o sorteio apenas enquanto nenhuma partida tiver resultado registrado | Planejado — AC2 |
+| RF20 | Bloquear o sorteio assim que o primeiro placar for salvo, preservando a integridade da competição | Planejado — AC2 |
+| RF21 | Exibir uma rodada por vez, navegando por deslize lateral e por um seletor de rodadas | Planejado — AC2 |
+| RF22 | Definir data, horário e local da partida | Implementado |
 
 ### 4.6 Resultados
 
+O cartão da partida reproduz a leitura de um placar esportivo: escudo e nome de cada time nas
+extremidades e o resultado em destaque ao centro. O próprio placar é o controle — tocá-lo abre o
+registro do resultado. Não há botões auxiliares de adicionar, editar ou remover no cartão.
+
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF23 | Registrar o placar da partida | Implementado |
-| RF24 | Atribuir os gols aos jogadores de cada time | Implementado |
-| RF25 | Registrar o número de defesas do goleiro | Implementado |
-| RF26 | Recusar atribuição de gols acima do placar informado | Implementado |
-| RF27 | Corrigir ou limpar um resultado já registrado | Implementado |
+| RF23 | Apresentar cada partida como cartão com escudo, nome e placar em destaque | Planejado — AC2 |
+| RF24 | Abrir o registro do resultado ao tocar no placar, sem botões auxiliares no cartão | Planejado — AC2 |
+| RF25 | Registrar o placar da partida | Implementado |
+| RF26 | Atribuir os gols aos jogadores de cada time | Implementado |
+| RF27 | Registrar o número de defesas do goleiro | Implementado |
+| RF28 | Recusar atribuição de gols acima do placar informado | Implementado |
+| RF29 | Corrigir ou limpar um resultado já registrado | Implementado |
 
 ### 4.7 Classificação
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF28 | Calcular P, J, V, E, D, GP, GC e SG a partir das partidas encerradas | Implementado |
-| RF29 | Atribuir 3 pontos por vitória, 1 por empate e 0 por derrota | Implementado |
-| RF30 | Recalcular a tabela a cada resultado registrado ou alterado | Implementado |
-| RF31 | Desempatar por pontos, vitórias, saldo de gols e gols marcados | Implementado |
-| RF32 | Exibir o aproveitamento percentual de cada time | Implementado |
+| RF30 | Calcular P, J, V, E, D, GP, GC e SG a partir das partidas encerradas | Implementado |
+| RF31 | Atribuir 3 pontos por vitória, 1 por empate e 0 por derrota | Implementado |
+| RF32 | Recalcular a tabela a cada resultado registrado ou alterado | Implementado |
+| RF33 | Desempatar por pontos, vitórias, saldo de gols e gols marcados | Implementado |
+| RF34 | Exibir o aproveitamento percentual de cada time | Implementado |
 
 ### 4.8 Rankings individuais
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF33 | Exibir a artilharia do campeonato | Implementado |
-| RF34 | Exibir o ranking de goleiros por número de defesas | Implementado |
-| RF35 | Desempatar por número de partidas disputadas | Implementado |
-| RF36 | Exibir a média por jogo de cada atleta | Implementado |
+| RF35 | Exibir a artilharia do campeonato | Implementado |
+| RF36 | Exibir o ranking de goleiros por número de defesas | Implementado |
+| RF37 | Desempatar por número de partidas disputadas | Implementado |
+| RF38 | Exibir a média por jogo de cada atleta | Implementado |
 
 ### 4.9 Estatísticas
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF37 | Exibir partidas realizadas e pendentes | Implementado |
-| RF38 | Exibir total e média de gols por partida | Implementado |
-| RF39 | Exibir a maior goleada do campeonato | Implementado |
-| RF40 | Exibir melhor ataque e melhor defesa | Implementado |
-| RF41 | Filtrar estatísticas por torneio, temporada e time | Planejado — AC3 |
+| RF39 | Exibir partidas realizadas e pendentes | Implementado |
+| RF40 | Exibir total e média de gols por partida | Implementado |
+| RF41 | Exibir a maior goleada do campeonato | Implementado |
+| RF42 | Exibir melhor ataque e melhor defesa | Implementado |
+| RF43 | Filtrar estatísticas por torneio, temporada e time | Planejado — AC3 |
 
 ### 4.10 Interface
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF42 | Alternar entre tema claro e escuro, preservando a escolha | Implementado |
-| RF43 | Iniciar no tema configurado no sistema na primeira execução | Implementado |
-| RF44 | Fechar o teclado ao tocar fora dos campos | Implementado |
-| RF45 | Navegar entre as seções do campeonato por menu lateral | Implementado |
+| RF44 | Alternar entre tema claro e escuro, preservando a escolha | Implementado |
+| RF45 | Iniciar no tema configurado no sistema na primeira execução | Implementado |
+| RF46 | Fechar o teclado ao tocar fora dos campos | Implementado |
+| RF47 | Navegar entre as seções do campeonato por menu lateral | Implementado |
 
 ### 4.11 Hierarquia de competições
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF46 | Cadastrar ligas, como entidade que agrupa torneios e times | Planejado — AC2 |
-| RF47 | Cadastrar torneios dentro de uma liga | Planejado — AC2 |
-| RF48 | Cadastrar temporadas dentro de um torneio | Planejado — AC2 |
-| RF49 | Vincular times e jogadores à liga, e não à temporada | Planejado — AC2 |
-| RF50 | Definir quais times da liga disputam cada temporada | Planejado — AC2 |
-| RF51 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
-| RF52 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
+| RF48 | Cadastrar ligas, como entidade que agrupa torneios e times | Planejado — AC2 |
+| RF49 | Cadastrar torneios dentro de uma liga | Planejado — AC2 |
+| RF50 | Cadastrar temporadas dentro de um torneio | Planejado — AC2 |
+| RF51 | Vincular times e jogadores à liga, e não à temporada | Planejado — AC2 |
+| RF52 | Definir quais times da liga disputam cada temporada | Planejado — AC2 |
+| RF53 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
+| RF54 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
 
 ---
 
@@ -339,6 +349,25 @@ campo alterna entre rodadas para equilibrar jogos em casa e fora.
 Para `n` times pares, o resultado é `n − 1` rodadas com `n ÷ 2` partidas cada, e nenhum confronto se
 repete.
 
+Todas essas definições são do sistema. Confrontos, ordem das rodadas e mando de campo não são
+editáveis pelo organizador.
+
+### 7.5 Trava do sorteio
+
+O sorteio pode ser refeito quantas vezes for preciso enquanto o campeonato não começou. A partir do
+momento em que **qualquer partida tem resultado registrado**, a competição é considerada iniciada e
+o sorteio fica indisponível.
+
+```
+Nenhum resultado registrado   →  sorteio liberado
+Ao menos um resultado salvo   →  sorteio bloqueado
+Resultado removido, voltando
+a zero resultados             →  sorteio liberado novamente
+```
+
+Sem essa trava, refazer a tabela invalidaria os jogos já disputados e, por consequência, a
+classificação.
+
 ### 7.5 Registro individual
 
 A soma dos gols atribuídos aos jogadores de um time não pode ultrapassar o placar informado. Gols
@@ -373,6 +402,8 @@ Splash
 | Fundo de splash e login | Gradiente verde com círculos sutis |
 | Tipografia | Material 3 padrão, títulos em peso alto |
 | Formulários | Cantos de 16 dp, ícone à esquerda, container tonal |
+| Cartão de partida | Escudos nas extremidades, placar em destaque ao centro, sem botões auxiliares |
+| Navegação entre rodadas | Uma rodada por tela, com deslize lateral e seletor no topo |
 
 ---
 

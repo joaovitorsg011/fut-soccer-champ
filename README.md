@@ -254,7 +254,7 @@ jogador ou de um time ao longo de todas as temporadas.
 | Board do projeto | [GitHub Projects](https://github.com/users/joaovitorsg011/projects/1) |
 | Tarefas por entrega | [Milestones](https://github.com/joaovitorsg011/fut-soccer-champ/milestones) |
 
-A especificação reúne os 52 requisitos funcionais, os requisitos não funcionais, as decisões de
+A especificação reúne os 54 requisitos funcionais, os requisitos não funcionais, as decisões de
 arquitetura, o modelo de dados e as regras de negócio. O board organiza as mesmas funcionalidades
 como tarefas agrupadas por entrega.
 
