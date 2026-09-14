@@ -47,6 +47,7 @@ fun MatchResultDialog(
     awayTeam: Team?,
     homePlayers: List<Player>,
     awayPlayers: List<Player>,
+    onClearResult: () -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (homeGoals: String, awayGoals: String, goals: Map<String, Int>, saves: Map<String, Int>) -> Unit
 ) {
@@ -104,7 +105,18 @@ fun MatchResultDialog(
                 }
             ) { Text("Salvar") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+        dismissButton = {
+            if (match.finished) {
+                TextButton(
+                    onClick = {
+                        onClearResult()
+                        onDismiss()
+                    }
+                ) { Text("Limpar placar") }
+            } else {
+                TextButton(onClick = onDismiss) { Text("Cancelar") }
+            }
+        }
     )
 }
 

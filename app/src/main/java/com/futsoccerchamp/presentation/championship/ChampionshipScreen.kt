@@ -197,9 +197,6 @@ fun ChampionshipScreen(
                     Section.TEAMS -> FloatingActionButton(onClick = { showTeamDialog = true }) {
                         Icon(Icons.Default.Add, contentDescription = "Adicionar time")
                     }
-                    Section.ROUNDS -> FloatingActionButton(onClick = { viewModel.addRound() }) {
-                        Icon(Icons.Default.Add, contentDescription = "Criar rodada")
-                    }
                     else -> Unit
                 }
             },
@@ -223,12 +220,10 @@ fun ChampionshipScreen(
                         matchesOf = state::matchesOfRound,
                         teamOf = state::team,
                         playersOf = state::playersOf,
-                        onAddMatch = viewModel::addMatch,
+                        drawLocked = state.drawLocked,
                         onEditMatch = viewModel::updateMatch,
                         onRegisterResult = viewModel::registerResult,
                         onClearResult = viewModel::clearResult,
-                        onDeleteMatch = viewModel::deleteMatch,
-                        onDeleteRound = viewModel::deleteRound,
                         onGenerateRounds = viewModel::generateAllRounds
                     )
                     section == Section.RANKINGS -> RankingsTab(

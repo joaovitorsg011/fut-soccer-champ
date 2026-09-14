@@ -1,37 +1,43 @@
 package com.futsoccerchamp.presentation.rounds
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Casino
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Scoreboard
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.data.model.Match
@@ -43,7 +49,9 @@ import com.futsoccerchamp.presentation.common.EmptyState
 import com.futsoccerchamp.presentation.matches.MatchFormDialog
 import com.futsoccerchamp.presentation.matches.MatchResultDialog
 import com.futsoccerchamp.presentation.teams.TeamBadge
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RoundsTab(
     rounds: List<Round>,
@@ -51,85 +59,99 @@ fun RoundsTab(
     matchesOf: (String) -> List<Match>,
     teamOf: (String) -> Team?,
     playersOf: (String) -> List<Player>,
-    onAddMatch: (roundId: String, homeTeamId: String, awayTeamId: String, date: String, time: String, place: String) -> Unit,
+    drawLocked: Boolean,
     onEditMatch: (Match, String, String, String, String, String) -> Unit,
     onRegisterResult: (Match, String, String, Map<String, Int>, Map<String, Int>) -> Unit,
     onClearResult: (Match) -> Unit,
-    onDeleteMatch: (Match) -> Unit,
-    onDeleteRound: (Round) -> Unit,
     onGenerateRounds: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var roundForNewMatch by remember { mutableStateOf<Round?>(null) }
-    var matchToEdit by remember { mutableStateOf<Match?>(null) }
     var matchForResult by remember { mutableStateOf<Match?>(null) }
-    var matchToDelete by remember { mutableStateOf<Match?>(null) }
-    var roundToDelete by remember { mutableStateOf<Round?>(null) }
-
+    var matchToEdit by remember { mutableStateOf<Match?>(null) }
     var confirmGenerate by remember { mutableStateOf(false) }
 
     if (rounds.isEmpty()) {
-        Column(modifier) {
-            EmptyState(
-                title = "Nenhuma rodada criada",
-                subtitle = "Sorteie a tabela completa a partir dos times cadastrados, ou use o botão + para montar as rodadas manualmente.",
-                modifier = Modifier.weight(1f)
-            )
-            Button(
-                onClick = onGenerateRounds,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
-            ) {
-                Icon(Icons.Default.Casino, contentDescription = null)
-                Text("Sortear tabela", modifier = Modifier.padding(start = 8.dp))
-            }
-        }
+        DrawPrompt(
+            enoughTeams = teams.size >= 2,
+            onGenerate = onGenerateRounds,
+            modifier = modifier
+        )
         return
     }
 
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            OutlinedButton(
-                onClick = { confirmGenerate = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Casino, contentDescription = null)
-                Text("Sortear tabela novamente", modifier = Modifier.padding(start = 8.dp))
+    val pagerState = rememberPagerState(pageCount = { rounds.size })
+    val scope = rememberCoroutineScope()
+
+    Column(modifier.fillMaxSize()) {
+        ScrollableTabRow(
+            selectedTabIndex = pagerState.currentPage,
+            edgePadding = 12.dp
+        ) {
+            rounds.forEachIndexed { index, round ->
+                Tab(
+                    selected = pagerState.currentPage == index,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                    text = { Text("Rodada ${round.number}") }
+                )
             }
         }
-        items(rounds, key = { it.id }) { round ->
-            RoundCard(
-                round = round,
-                matches = matchesOf(round.id),
-                teamOf = teamOf,
-                onAddMatch = { roundForNewMatch = round },
-                onDeleteRound = { roundToDelete = round },
-                onEditMatch = { matchToEdit = it },
-                onRegisterResult = { matchForResult = it },
-                onClearResult = onClearResult,
-                onDeleteMatch = { matchToDelete = it }
-            )
+
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
+            val round = rounds[page]
+            val matches = matchesOf(round.id)
+
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item { RoundSummary(round = round, matches = matches) }
+
+                items(matches, key = { it.id }) { match ->
+                    MatchScoreCard(
+                        match = match,
+                        home = teamOf(match.homeTeamId),
+                        away = teamOf(match.awayTeamId),
+                        onOpenResult = { matchForResult = match },
+                        onOpenDetails = { matchToEdit = match }
+                    )
+                }
+
+                if (!drawLocked) {
+                    item {
+                        OutlinedButton(
+                            onClick = { confirmGenerate = true },
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Casino, contentDescription = null)
+                            Text("Sortear tabela novamente", modifier = Modifier.padding(start = 8.dp))
+                        }
+                    }
+                } else {
+                    item { DrawLockedNotice() }
+                }
+            }
         }
     }
 
-    roundForNewMatch?.let { round ->
-        MatchFormDialog(
-            title = "Nova partida — Rodada ${round.number}",
-            teams = teams,
-            onDismiss = { roundForNewMatch = null },
-            onConfirm = { home, away, date, time, place ->
-                onAddMatch(round.id, home, away, date, time, place)
-                roundForNewMatch = null
+    matchForResult?.let { match ->
+        MatchResultDialog(
+            match = match,
+            homeTeam = teamOf(match.homeTeamId),
+            awayTeam = teamOf(match.awayTeamId),
+            homePlayers = playersOf(match.homeTeamId),
+            awayPlayers = playersOf(match.awayTeamId),
+            onClearResult = { onClearResult(match) },
+            onDismiss = { matchForResult = null },
+            onConfirm = { home, away, goals, saves ->
+                onRegisterResult(match, home, away, goals, saves)
+                matchForResult = null
             }
         )
     }
 
     matchToEdit?.let { match ->
         MatchFormDialog(
-            title = "Editar partida",
+            title = "Detalhes da partida",
             teams = teams,
             initialHomeTeamId = match.homeTeamId,
             initialAwayTeamId = match.awayTeamId,
@@ -144,37 +166,10 @@ fun RoundsTab(
         )
     }
 
-    matchForResult?.let { match ->
-        MatchResultDialog(
-            match = match,
-            homeTeam = teamOf(match.homeTeamId),
-            awayTeam = teamOf(match.awayTeamId),
-            homePlayers = playersOf(match.homeTeamId),
-            awayPlayers = playersOf(match.awayTeamId),
-            onDismiss = { matchForResult = null },
-            onConfirm = { home, away, goals, saves ->
-                onRegisterResult(match, home, away, goals, saves)
-                matchForResult = null
-            }
-        )
-    }
-
-    matchToDelete?.let { match ->
-        ConfirmDialog(
-            title = "Excluir partida",
-            message = "Esta partida será removida do campeonato.",
-            onConfirm = {
-                onDeleteMatch(match)
-                matchToDelete = null
-            },
-            onDismiss = { matchToDelete = null }
-        )
-    }
-
     if (confirmGenerate) {
         ConfirmDialog(
             title = "Sortear tabela novamente",
-            message = "As rodadas e partidas atuais serão apagadas e um novo sorteio será feito com os times cadastrados.",
+            message = "As rodadas atuais serão substituídas por um novo sorteio com os times cadastrados.",
             confirmLabel = "Sortear",
             onConfirm = {
                 onGenerateRounds()
@@ -183,104 +178,68 @@ fun RoundsTab(
             onDismiss = { confirmGenerate = false }
         )
     }
-
-    roundToDelete?.let { round ->
-        ConfirmDialog(
-            title = "Excluir rodada ${round.number}",
-            message = "Todas as partidas desta rodada serão removidas.",
-            onConfirm = {
-                onDeleteRound(round)
-                roundToDelete = null
-            },
-            onDismiss = { roundToDelete = null }
-        )
-    }
 }
 
 @Composable
-private fun RoundCard(
-    round: Round,
-    matches: List<Match>,
-    teamOf: (String) -> Team?,
-    onAddMatch: () -> Unit,
-    onDeleteRound: () -> Unit,
-    onEditMatch: (Match) -> Unit,
-    onRegisterResult: (Match) -> Unit,
-    onClearResult: (Match) -> Unit,
-    onDeleteMatch: (Match) -> Unit
+private fun DrawPrompt(
+    enoughTeams: Boolean,
+    onGenerate: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Card(Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+    Column(modifier.fillMaxSize()) {
+        EmptyState(
+            title = "Tabela ainda não sorteada",
+            subtitle = if (enoughTeams) {
+                "O sorteio monta todas as rodadas do turno, definindo os confrontos e o mando de campo."
+            } else {
+                "Cadastre ao menos dois times para sortear a tabela."
+            },
+            modifier = Modifier.weight(1f)
+        )
+        Button(
+            onClick = onGenerate,
+            enabled = enoughTeams,
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
-            Text(
-                "Rodada ${round.number}",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = onAddMatch) {
-                Icon(Icons.Default.Add, contentDescription = "Adicionar partida")
-            }
-            IconButton(onClick = onDeleteRound) {
-                Icon(Icons.Default.Delete, contentDescription = "Excluir rodada")
-            }
-        }
-
-        if (matches.isEmpty()) {
-            Text(
-                "Nenhuma partida nesta rodada.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(16.dp)
-            )
-            return@Card
-        }
-
-        matches.forEachIndexed { index, match ->
-            if (index > 0) HorizontalDivider()
-            MatchRow(
-                match = match,
-                home = teamOf(match.homeTeamId),
-                away = teamOf(match.awayTeamId),
-                onEdit = { onEditMatch(match) },
-                onRegisterResult = { onRegisterResult(match) },
-                onClearResult = { onClearResult(match) },
-                onDelete = { onDeleteMatch(match) }
-            )
+            Icon(Icons.Default.Casino, contentDescription = null)
+            Text("Sortear tabela", modifier = Modifier.padding(start = 8.dp))
         }
     }
 }
 
 @Composable
-private fun MatchRow(
+private fun RoundSummary(round: Round, matches: List<Match>) {
+    val played = matches.count { it.finished }
+
+    Text(
+        "Rodada ${round.number} · $played de ${matches.size} partidas encerradas",
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MatchScoreCard(
     match: Match,
     home: Team?,
     away: Team?,
-    onEdit: () -> Unit,
-    onRegisterResult: () -> Unit,
-    onClearResult: () -> Unit,
-    onDelete: () -> Unit
+    onOpenResult: () -> Unit,
+    onOpenDetails: () -> Unit
 ) {
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            home?.let { TeamBadge(it, size = 28) }
-            Text(
-                home?.name ?: "—",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
-            )
-            Text(
-                if (match.finished) "${match.homeGoals} x ${match.awayGoals}" else "x",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                away?.name ?: "—",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
-            )
-            away?.let { TeamBadge(it, size = 28) }
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = onOpenResult, onLongClick = onOpenDetails)
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 20.dp, horizontal = 12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TeamSide(team = home, modifier = Modifier.weight(1f))
+            Score(match = match)
+            TeamSide(team = away, modifier = Modifier.weight(1f))
         }
 
         val info = listOfNotNull(
@@ -292,25 +251,75 @@ private fun MatchRow(
         if (info.isNotBlank()) {
             Text(
                 info,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
             )
         }
+    }
+}
 
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            IconButton(onClick = onRegisterResult) {
-                Icon(Icons.Default.Scoreboard, contentDescription = "Registrar resultado")
-            }
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, contentDescription = "Editar partida")
-            }
-            if (match.finished) {
-                TextButton(onClick = onClearResult) { Text("Limpar placar") }
-            }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Excluir partida")
-            }
-        }
+@Composable
+private fun TeamSide(team: Team?, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        team?.let { TeamBadge(it, size = 52) } ?: Box(Modifier.size(52.dp))
+        Text(
+            team?.name.orEmpty(),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            maxLines = 2
+        )
+    }
+}
+
+@Composable
+private fun Score(match: Match) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = if (match.finished) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant
+        },
+        modifier = Modifier.padding(horizontal = 8.dp)
+    ) {
+        Text(
+            text = if (match.finished) "${match.homeGoals}  ${match.awayGoals}" else "0  0",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (match.finished) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+        )
+    }
+}
+
+@Composable
+private fun DrawLockedNotice() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            Icons.Default.Lock,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            "Campeonato em andamento: a tabela não pode mais ser sorteada.",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 8.dp)
+        )
     }
 }

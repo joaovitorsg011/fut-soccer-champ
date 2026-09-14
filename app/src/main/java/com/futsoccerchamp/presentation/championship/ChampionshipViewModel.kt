@@ -44,6 +44,8 @@ data class ChampionshipUiState(
     fun playersOf(teamId: String): List<Player> = players.filter { it.teamId == teamId }
 
     fun playerCountOf(teamId: String): Int = players.count { it.teamId == teamId }
+
+    val drawLocked: Boolean get() = matches.any { it.finished }
 }
 
 class ChampionshipViewModel(
@@ -174,16 +176,12 @@ class ChampionshipViewModel(
 
     fun deleteTeam(team: Team) = launchWithError { teamRepository.delete(team) }
 
-    fun addRound() = launchWithError {
-        val number = roundRepository.nextNumber(championshipId)
-        roundRepository.create(Round(championshipId = championshipId, number = number))
-    }
-
-    fun deleteRound(round: Round) = launchWithError { roundRepository.delete(round) }
-
     fun generateAllRounds() {
         val state = _uiState.value
         if (state.teams.size < 2) return showError("Cadastre pelo menos 2 times.")
+        if (state.drawLocked) {
+            return showError("O campeonato já começou: a tabela não pode mais ser sorteada.")
+        }
 
         launchWithError {
             state.rounds.forEach { roundRepository.delete(it) }
@@ -203,24 +201,6 @@ class ChampionshipViewModel(
                 }
             }
             Result.success(Unit)
-        }
-    }
-
-    fun addMatch(roundId: String, homeTeamId: String, awayTeamId: String, date: String, time: String, place: String) {
-        if (homeTeamId.isBlank() || awayTeamId.isBlank()) return showError("Selecione os dois times.")
-        if (homeTeamId == awayTeamId) return showError("O time não pode jogar contra ele mesmo.")
-        launchWithError {
-            matchRepository.create(
-                Match(
-                    championshipId = championshipId,
-                    roundId = roundId,
-                    homeTeamId = homeTeamId,
-                    awayTeamId = awayTeamId,
-                    date = date.trim(),
-                    time = time.trim(),
-                    place = place.trim()
-                )
-            )
         }
     }
 
@@ -263,8 +243,6 @@ class ChampionshipViewModel(
     }
 
     fun clearResult(match: Match) = launchWithError { matchRepository.clearResult(match.id) }
-
-    fun deleteMatch(match: Match) = launchWithError { matchRepository.delete(match.id) }
 
     fun consumeError() = update { copy(error = null) }
 

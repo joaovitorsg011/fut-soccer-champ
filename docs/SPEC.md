@@ -148,10 +148,10 @@ a tabela do Campeonato Brasileiro, em que o calendário nasce pronto do sorteio.
 | ID | Requisito | Status |
 |----|-----------|--------|
 | RF17 | Sortear a tabela completa do turno a partir dos times cadastrados, definindo confrontos e mando de campo automaticamente | Implementado |
-| RF18 | Não oferecer criação, edição ou exclusão manual de rodadas e confrontos | Planejado — AC2 |
-| RF19 | Permitir refazer o sorteio apenas enquanto nenhuma partida tiver resultado registrado | Planejado — AC2 |
-| RF20 | Bloquear o sorteio assim que o primeiro placar for salvo, preservando a integridade da competição | Planejado — AC2 |
-| RF21 | Exibir uma rodada por vez, navegando por deslize lateral e por um seletor de rodadas | Planejado — AC2 |
+| RF18 | Não oferecer criação, edição ou exclusão manual de rodadas e confrontos | Implementado |
+| RF19 | Permitir refazer o sorteio apenas enquanto nenhuma partida tiver resultado registrado | Implementado |
+| RF20 | Bloquear o sorteio assim que o primeiro placar for salvo, preservando a integridade da competição | Implementado |
+| RF21 | Exibir uma rodada por vez, navegando por deslize lateral e por um seletor de rodadas | Implementado |
 | RF22 | Definir data, horário e local da partida | Implementado |
 
 ### 4.6 Resultados
@@ -162,8 +162,8 @@ registro do resultado. Não há botões auxiliares de adicionar, editar ou remov
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF23 | Apresentar cada partida como cartão com escudo, nome e placar em destaque | Planejado — AC2 |
-| RF24 | Abrir o registro do resultado ao tocar no placar, sem botões auxiliares no cartão | Planejado — AC2 |
+| RF23 | Apresentar cada partida como cartão com escudo, nome e placar em destaque | Implementado |
+| RF24 | Abrir o registro do resultado ao tocar no placar, sem botões auxiliares no cartão | Implementado |
 | RF25 | Registrar o placar da partida | Implementado |
 | RF26 | Atribuir os gols aos jogadores de cada time | Implementado |
 | RF27 | Registrar o número de defesas do goleiro | Implementado |
