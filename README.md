@@ -9,6 +9,8 @@
 [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
 [![minSdk](https://img.shields.io/badge/minSdk-24-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 
+[Especificação](docs/SPEC.md) · [Board do projeto](https://github.com/users/joaovitorsg011/projects/1) · [Issues](https://github.com/joaovitorsg011/fut-soccer-champ/issues)
+
 </div>
 
 ---
@@ -226,9 +228,12 @@ pasta — nenhuma alteração de código é necessária.
 
 ## Roadmap das entregas
 
+O acompanhamento das tarefas fica no [board do projeto](https://github.com/users/joaovitorsg011/projects/1),
+onde cada issue está vinculada à entrega correspondente.
+
 | Entrega | Data | Funcionalidade apresentada |
 |:-------:|:----:|----------------------------|
-| **AC1** | 14/09 | Autenticação, criação de campeonato, cadastro e listagem de times |
+| **AC1** | 14/09 | Autenticação, campeonatos, times, elenco, rodadas, resultados, classificação e rankings |
 | **AC2** | 13/10 | Hierarquia Liga → Torneio → Temporada, com histórico acumulado de times e jogadores |
 | **AC3** | 08/11 | Classificação automática com critérios de desempate |
 | **Final** | 22/11 | Estatísticas com filtro por torneio, temporada e time, e refinamento da interface |
@@ -241,10 +246,17 @@ Brasileirão → 2026) — com times e jogadores pertencendo à liga. A temporad
 quais times disputam, suas rodadas e sua classificação, o que permite somar o histórico de um
 jogador ou de um time ao longo de todas as temporadas.
 
-## Documentação
+## Documentação e acompanhamento
 
-A especificação completa do projeto — requisitos funcionais e não funcionais, modelagem, regras de
-negócio e planejamento das entregas — está em [`docs/SPEC.md`](docs/SPEC.md).
+| Recurso | Link |
+|---------|------|
+| Especificação completa | [`docs/SPEC.md`](docs/SPEC.md) |
+| Board do projeto | [GitHub Projects](https://github.com/users/joaovitorsg011/projects/1) |
+| Tarefas por entrega | [Milestones](https://github.com/joaovitorsg011/fut-soccer-champ/milestones) |
+
+A especificação reúne os 52 requisitos funcionais, os requisitos não funcionais, as decisões de
+arquitetura, o modelo de dados e as regras de negócio. O board organiza as mesmas funcionalidades
+como tarefas agrupadas por entrega.
 
 ## Equipe
 
