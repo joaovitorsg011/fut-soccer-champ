@@ -4,8 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.EmojiEvents
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Notes
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -16,6 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.futsoccerchamp.presentation.common.AppTextField
+import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 
 @Composable
 fun ChampionshipFormDialog(
@@ -36,34 +42,38 @@ fun ChampionshipFormDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
+            Column(
+                modifier = Modifier.dismissKeyboardOnTap(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                AppTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Nome",
+                    placeholder = "Liga Universitária",
+                    leadingIcon = Icons.Outlined.EmojiEvents
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = season,
                     onValueChange = { season = it },
-                    label = { Text("Temporada") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Temporada",
+                    placeholder = "2026",
+                    leadingIcon = Icons.Outlined.CalendarMonth
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = teamLimit,
-                    onValueChange = { input -> teamLimit = input.filter { it.isDigit() } },
-                    label = { Text("Quantidade de times") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { input -> teamLimit = input.filter { it.isDigit() }.take(2) },
+                    label = "Quantidade de times",
+                    leadingIcon = Icons.Outlined.Groups,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descrição (opcional)") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Descrição",
+                    placeholder = "Opcional",
+                    leadingIcon = Icons.Outlined.Notes,
+                    singleLine = false
                 )
             }
         },

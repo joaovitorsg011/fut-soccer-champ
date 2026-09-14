@@ -19,7 +19,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,7 +36,9 @@ import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.data.model.Match
 import com.futsoccerchamp.data.model.Player
 import com.futsoccerchamp.data.model.Team
+import com.futsoccerchamp.presentation.common.AppTextField
 import com.futsoccerchamp.presentation.common.Avatar
+import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 
 @Composable
 fun MatchResultDialog(
@@ -59,7 +60,10 @@ fun MatchResultDialog(
         title = { Text("Resultado da partida") },
         text = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()).heightIn(max = 520.dp),
+                modifier = Modifier
+                    .dismissKeyboardOnTap()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(max = 520.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 ScoreRow(
@@ -118,20 +122,18 @@ private fun ScoreRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(
+        AppTextField(
             value = homeGoals,
             onValueChange = { input -> onHomeChange(input.filter { it.isDigit() }.take(2)) },
-            label = { Text(homeName.ifBlank { "Mandante" }) },
-            singleLine = true,
+            label = homeName.ifBlank { "Mandante" },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f)
         )
         Text("x", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(
+        AppTextField(
             value = awayGoals,
             onValueChange = { input -> onAwayChange(input.filter { it.isDigit() }.take(2)) },
-            label = { Text(awayName.ifBlank { "Visitante" }) },
-            singleLine = true,
+            label = awayName.ifBlank { "Visitante" },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f)
         )

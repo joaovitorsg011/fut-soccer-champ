@@ -1,7 +1,6 @@
 package com.futsoccerchamp.presentation.theme
 
 import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -36,14 +35,10 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun FutSoccerBrasilTheme(
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
+    themeMode: ThemeMode = ThemeMode.LIGHT,
     content: @Composable () -> Unit
 ) {
-    val darkTheme = when (themeMode) {
-        ThemeMode.SYSTEM -> isSystemInDarkTheme()
-        ThemeMode.LIGHT -> false
-        ThemeMode.DARK -> true
-    }
+    val darkTheme = themeMode == ThemeMode.DARK
     val colorScheme = if (darkTheme) DarkColors else LightColors
     val view = LocalView.current
 

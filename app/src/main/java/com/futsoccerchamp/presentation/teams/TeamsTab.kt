@@ -16,12 +16,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,10 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.data.model.Team
+import com.futsoccerchamp.presentation.common.AppTextField
 import com.futsoccerchamp.presentation.common.Avatar
 import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.EmptyState
 import com.futsoccerchamp.presentation.common.PhotoField
+import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 
 @Composable
 fun TeamsTab(
@@ -175,7 +178,7 @@ fun TeamFormDialog(
         title = { Text(title) },
         text = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.dismissKeyboardOnTap().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 PhotoField(
@@ -184,20 +187,20 @@ fun TeamFormDialog(
                     label = "Escudo do time",
                     onPhotoChange = { logo = it }
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Nome",
+                    placeholder = "Sport Club Corinthians",
+                    leadingIcon = Icons.Outlined.Shield
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = abbreviation,
                     onValueChange = { if (it.length <= 3) abbreviation = it.uppercase() },
-                    label = { Text("Sigla") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Sigla",
+                    placeholder = "COR",
+                    supportingText = "Até 3 letras",
+                    leadingIcon = Icons.Outlined.Tag
                 )
             }
         },

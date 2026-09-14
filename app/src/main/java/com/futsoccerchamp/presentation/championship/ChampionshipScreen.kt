@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.EmojiEvents as EmojiEventsIcon
@@ -154,9 +153,9 @@ fun ChampionshipScreen(
                 )
                 NavigationDrawerItem(
                     icon = { Icon(themeMode.icon(), contentDescription = null) },
-                    label = { Text(themeMode.label) },
+                    label = { Text(themeMode.toggled().label) },
                     selected = false,
-                    onClick = { onThemeModeChange(themeMode.next()) },
+                    onClick = { onThemeModeChange(themeMode.toggled()) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
@@ -274,8 +273,5 @@ fun ChampionshipScreen(
     }
 }
 
-private fun ThemeMode.icon(): ImageVector = when (this) {
-    ThemeMode.SYSTEM -> Icons.Default.PhoneAndroid
-    ThemeMode.LIGHT -> Icons.Default.LightMode
-    ThemeMode.DARK -> Icons.Default.DarkMode
-}
+private fun ThemeMode.icon(): ImageVector =
+    if (this == ThemeMode.DARK) Icons.Default.LightMode else Icons.Default.DarkMode

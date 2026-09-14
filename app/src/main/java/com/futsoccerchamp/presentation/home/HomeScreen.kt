@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,8 +72,8 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("Meus campeonatos") },
                 actions = {
-                    IconButton(onClick = { onThemeModeChange(themeMode.next()) }) {
-                        Icon(themeMode.icon(), contentDescription = themeMode.label)
+                    IconButton(onClick = { onThemeModeChange(themeMode.toggled()) }) {
+                        Icon(themeMode.icon(), contentDescription = themeMode.toggled().label)
                     }
                     IconButton(onClick = onSignOut) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sair")
@@ -172,8 +171,5 @@ private fun ChampionshipCard(
     }
 }
 
-private fun ThemeMode.icon(): ImageVector = when (this) {
-    ThemeMode.SYSTEM -> Icons.Default.PhoneAndroid
-    ThemeMode.LIGHT -> Icons.Default.LightMode
-    ThemeMode.DARK -> Icons.Default.DarkMode
-}
+private fun ThemeMode.icon(): ImageVector =
+    if (this == ThemeMode.DARK) Icons.Default.LightMode else Icons.Default.DarkMode

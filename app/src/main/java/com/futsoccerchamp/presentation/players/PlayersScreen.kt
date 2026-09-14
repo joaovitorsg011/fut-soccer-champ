@@ -18,6 +18,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.SportsSoccer
+import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
@@ -29,7 +32,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,9 +48,11 @@ import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.data.model.Player
 import com.futsoccerchamp.data.model.PlayerPosition
 import com.futsoccerchamp.data.model.Team
+import com.futsoccerchamp.presentation.common.AppTextField
 import com.futsoccerchamp.presentation.common.Avatar
 import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.EmptyState
+import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -192,32 +196,30 @@ private fun PlayerFormDialog(
         title = { Text(title) },
         text = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.dismissKeyboardOnTap().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
+                AppTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Nome",
+                    leadingIcon = Icons.Outlined.Person
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = number,
                     onValueChange = { input -> number = input.filter { it.isDigit() }.take(2) },
-                    label = { Text("Número da camisa") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Número da camisa",
+                    leadingIcon = Icons.Outlined.Tag,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                    OutlinedTextField(
+                    AppTextField(
                         value = PlayerPosition.valueOf(position).label,
                         onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Posição") },
+                        label = "Posição",
+                        leadingIcon = Icons.Outlined.SportsSoccer,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.menuAnchor()
                     )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         PlayerPosition.entries.forEach { option ->

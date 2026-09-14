@@ -15,6 +15,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -25,7 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +46,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.futsoccerchamp.presentation.common.AppTextField
 import com.futsoccerchamp.presentation.common.AuthBackground
+import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 
 @Composable
 fun LoginScreen(viewModel: AuthViewModel) {
@@ -54,14 +57,13 @@ fun LoginScreen(viewModel: AuthViewModel) {
     var password by rememberSaveable { mutableStateOf("") }
 
     AuthScaffold(title = "Bem-vindo de volta", subtitle = "Entre para gerenciar seus campeonatos") {
-        OutlinedTextField(
+        AppTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("E-mail") },
-            singleLine = true,
-            shape = RoundedCornerShape(14.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-            modifier = Modifier.fillMaxWidth()
+            label = "E-mail",
+            placeholder = "voce@email.com",
+            leadingIcon = Icons.Outlined.Email,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
         )
         Spacer(Modifier.height(12.dp))
         PasswordField(
@@ -92,6 +94,7 @@ private fun AuthScaffold(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .dismissKeyboardOnTap()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center,
@@ -152,12 +155,11 @@ private fun PasswordField(
 ) {
     var visible by rememberSaveable { mutableStateOf(false) }
 
-    OutlinedTextField(
+    AppTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
-        singleLine = true,
-        shape = RoundedCornerShape(14.dp),
+        label = label,
+        leadingIcon = Icons.Outlined.Lock,
         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction),
         trailingIcon = {
@@ -167,8 +169,7 @@ private fun PasswordField(
                     contentDescription = if (visible) "Ocultar senha" else "Mostrar senha"
                 )
             }
-        },
-        modifier = Modifier.fillMaxWidth()
+        }
     )
 }
 
