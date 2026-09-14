@@ -31,6 +31,11 @@ service cloud.firestore {
       allow create, update: if isOwnerOf(request.resource.data.championshipId);
     }
 
+    match /players/{playerId} {
+      allow read, delete: if isOwnerOf(resource.data.championshipId);
+      allow create, update: if isOwnerOf(request.resource.data.championshipId);
+    }
+
     match /matches/{matchId} {
       allow read, delete: if isOwnerOf(resource.data.championshipId);
       allow create, update: if isOwnerOf(request.resource.data.championshipId);
