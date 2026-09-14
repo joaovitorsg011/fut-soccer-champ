@@ -72,7 +72,7 @@ fun SplashScreen(onFinished: () -> Unit) {
             }
 
             Text(
-                "FUT SOCCER CHAMP",
+                "FUT SOCCER BRASIL",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 2.sp,

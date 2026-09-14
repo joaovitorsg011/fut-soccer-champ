@@ -115,7 +115,7 @@ private fun AuthScaffold(
                 }
             }
             Text(
-                "FUT SOCCER CHAMP",
+                "FUT SOCCER BRASIL",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 2.sp,

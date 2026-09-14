@@ -1,6 +1,6 @@
 <div align="center">
 
-# Fut Soccer Champ
+# Fut Soccer Brasil
 
 **Aplicativo Android para criação e gerenciamento de campeonatos de futebol.**
 
@@ -18,7 +18,7 @@
 Organizar um campeonato amador costuma terminar em planilhas espalhadas e tabelas de classificação
 calculadas na mão, onde um placar corrigido raramente chega até a pontuação final.
 
-O **Fut Soccer Champ** centraliza esse fluxo em um único aplicativo: o organizador cria o campeonato,
+O **Fut Soccer Brasil** centraliza esse fluxo em um único aplicativo: o organizador cria o campeonato,
 cadastra os times, monta as rodadas, registra os resultados — e a tabela de classificação se atualiza
 sozinha, sempre coerente com os placares registrados.
 

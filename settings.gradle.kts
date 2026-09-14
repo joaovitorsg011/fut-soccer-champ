@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Fut Soccer Champ"
+rootProject.name = "Fut Soccer Brasil"
 include(":app")

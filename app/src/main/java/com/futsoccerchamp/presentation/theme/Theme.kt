@@ -35,7 +35,7 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun FutSoccerChampTheme(
+fun FutSoccerBrasilTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     content: @Composable () -> Unit
 ) {

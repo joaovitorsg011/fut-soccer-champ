@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.domain.model.Standing
 import com.futsoccerchamp.presentation.common.EmptyState
-import com.futsoccerchamp.presentation.theme.FutSoccerChampTheme
+import com.futsoccerchamp.presentation.theme.FutSoccerBrasilTheme
 
 private val COLUMNS = listOf("P", "J", "V", "E", "D", "GP", "GC", "SG")
 
@@ -165,7 +165,7 @@ private val PREVIEW_STANDINGS = listOf(
 @Preview(name = "Classificação", showSystemUi = true, device = Devices.PIXEL_7)
 @Composable
 private fun StandingsTabPreview() {
-    FutSoccerChampTheme {
+    FutSoccerBrasilTheme {
         Scaffold(
             topBar = {
                 TopAppBar(

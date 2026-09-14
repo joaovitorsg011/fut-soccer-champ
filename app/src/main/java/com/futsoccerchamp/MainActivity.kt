@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.futsoccerchamp.presentation.AppNavigation
 import com.futsoccerchamp.presentation.common.FirebaseSetupScreen
-import com.futsoccerchamp.presentation.theme.FutSoccerChampTheme
+import com.futsoccerchamp.presentation.theme.FutSoccerBrasilTheme
 import com.futsoccerchamp.presentation.theme.ThemeMode
 import com.futsoccerchamp.presentation.theme.ThemePreferences
 import com.google.firebase.FirebaseApp
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             var themeMode by remember { mutableStateOf(themePreferences.load()) }
 
-            FutSoccerChampTheme(themeMode = themeMode) {
+            FutSoccerBrasilTheme(themeMode = themeMode) {
                 if (firebaseReady) {
                     AppNavigation(
                         themeMode = themeMode,
