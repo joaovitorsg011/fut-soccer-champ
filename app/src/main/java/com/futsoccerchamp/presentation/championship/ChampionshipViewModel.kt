@@ -231,6 +231,10 @@ class ChampionshipViewModel(
 
     fun clearResult(match: Match) = launchWithError { matchRepository.clearResult(match.id) }
 
+    fun restartCompetition() = launchWithError {
+        roundRepository.deleteByChampionship(championshipId)
+    }
+
     fun consumeError() = update { copy(error = null) }
 
     private fun <T> observe(flow: kotlinx.coroutines.flow.Flow<T>, onEach: (T) -> Unit) {

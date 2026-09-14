@@ -153,6 +153,7 @@ a tabela do Campeonato Brasileiro, em que o calendário nasce pronto do sorteio.
 | RF20 | Bloquear o sorteio assim que o primeiro placar for salvo, preservando a integridade da competição | Implementado |
 | RF21 | Exibir uma rodada por vez, navegando por deslize lateral e por um seletor de rodadas | Implementado |
 | RF22 | Definir data, horário e local da partida | Implementado |
+| RF55 | Reiniciar a competição, apagando rodadas, partidas e placares e preservando times e jogadores | Implementado |
 
 ### 4.6 Resultados
 
@@ -368,6 +369,10 @@ Ao menos um resultado salvo   →  sorteio bloqueado
 Resultado removido, voltando
 a zero resultados             →  sorteio liberado novamente
 ```
+
+Para recomeçar uma competição já iniciada existe a ação **Reiniciar competição**, no menu lateral:
+ela apaga rodadas, partidas e placares de uma vez, preservando times e jogadores, e devolve o
+campeonato ao estado anterior ao sorteio.
 
 Sem essa trava, refazer a tabela invalidaria os jogos já disputados e, por consequência, a
 classificação.

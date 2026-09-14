@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.EmojiEvents as EmojiEventsIcon
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.LoadingBox
 import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.presentation.players.PlayersScreen
@@ -83,6 +85,7 @@ fun ChampionshipScreen(
     var showTeamDialog by remember { mutableStateOf(false) }
     var showEditChampionship by remember { mutableStateOf(false) }
     var openedTeamId by remember { mutableStateOf<String?>(null) }
+    var confirmRestart by remember { mutableStateOf(false) }
 
     val openedTeam: Team? = openedTeamId?.let { state.team(it) }
 
@@ -156,6 +159,16 @@ fun ChampionshipScreen(
                     label = { Text(themeMode.toggled().label) },
                     selected = false,
                     onClick = { onThemeModeChange(themeMode.toggled()) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.RestartAlt, contentDescription = null) },
+                    label = { Text("Reiniciar competição") },
+                    selected = false,
+                    onClick = {
+                        confirmRestart = true
+                        scope.launch { drawerState.close() }
+                    },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
@@ -238,6 +251,19 @@ fun ChampionshipScreen(
                 }
             }
         }
+    }
+
+    if (confirmRestart) {
+        ConfirmDialog(
+            title = "Reiniciar competição",
+            message = "Todas as rodadas, partidas e placares serão apagados. Os times e seus jogadores são mantidos, e a tabela poderá ser sorteada novamente.",
+            confirmLabel = "Reiniciar",
+            onConfirm = {
+                viewModel.restartCompetition()
+                confirmRestart = false
+            },
+            onDismiss = { confirmRestart = false }
+        )
     }
 
     if (showTeamDialog) {
