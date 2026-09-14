@@ -22,8 +22,7 @@ class PlayerRepository(private val firestore: FirebaseFirestore) {
                 mapOf(
                     "name" to player.name,
                     "number" to player.number,
-                    "position" to player.position,
-                    "photo" to player.photo
+                    "position" to player.position
                 )
             )
             .await()

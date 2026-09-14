@@ -49,15 +49,14 @@ import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.presentation.common.Avatar
 import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.EmptyState
-import com.futsoccerchamp.presentation.common.PhotoField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayersScreen(
     team: Team,
     players: List<Player>,
-    onAdd: (name: String, number: String, position: String, photo: String) -> Unit,
-    onEdit: (Player, String, String, String, String) -> Unit,
+    onAdd: (name: String, number: String, position: String) -> Unit,
+    onEdit: (Player, String, String, String) -> Unit,
     onDelete: (Player) -> Unit,
     onBack: () -> Unit
 ) {
@@ -114,8 +113,8 @@ fun PlayersScreen(
         PlayerFormDialog(
             title = "Novo jogador",
             onDismiss = { showAddDialog = false },
-            onConfirm = { name, number, position, photo ->
-                onAdd(name, number, position, photo)
+            onConfirm = { name, number, position ->
+                onAdd(name, number, position)
                 showAddDialog = false
             }
         )
@@ -127,10 +126,9 @@ fun PlayersScreen(
             initialName = player.name,
             initialNumber = player.number.takeIf { it > 0 }?.toString().orEmpty(),
             initialPosition = player.position,
-            initialPhoto = player.photo,
             onDismiss = { playerToEdit = null },
-            onConfirm = { name, number, position, photo ->
-                onEdit(player, name, number, position, photo)
+            onConfirm = { name, number, position ->
+                onEdit(player, name, number, position)
                 playerToEdit = null
             }
         )
@@ -181,14 +179,12 @@ private fun PlayerFormDialog(
     initialName: String = "",
     initialNumber: String = "",
     initialPosition: String = PlayerPosition.FORWARD.name,
-    initialPhoto: String = "",
     onDismiss: () -> Unit,
-    onConfirm: (name: String, number: String, position: String, photo: String) -> Unit
+    onConfirm: (name: String, number: String, position: String) -> Unit
 ) {
     var name by remember { mutableStateOf(initialName) }
     var number by remember { mutableStateOf(initialNumber) }
     var position by remember { mutableStateOf(initialPosition) }
-    var photo by remember { mutableStateOf(initialPhoto) }
     var expanded by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -199,12 +195,6 @@ private fun PlayerFormDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                PhotoField(
-                    photo = photo,
-                    initials = name.take(2).uppercase(),
-                    label = "Foto do jogador",
-                    onPhotoChange = { photo = it }
-                )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -244,7 +234,7 @@ private fun PlayerFormDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(name, number, position, photo) }) { Text("Salvar") }
+            TextButton(onClick = { onConfirm(name, number, position) }) { Text("Salvar") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )

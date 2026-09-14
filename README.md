@@ -31,7 +31,7 @@ Projeto desenvolvido para a disciplina de **Projeto de Software**.
 | **Autenticação** | Login e sessão persistente com Firebase Authentication |
 | **Campeonatos** | Criação, edição, listagem e exclusão em cascata |
 | **Times** | Cadastro com nome, sigla e escudo escolhido da galeria |
-| **Elenco** | Jogadores por time, com foto, número da camisa e posição |
+| **Elenco** | Jogadores por time, com número da camisa e posição |
 | **Rodadas** | Criação manual ou geração automática do calendário (round-robin) |
 | **Partidas** | Confrontos com data, horário e local; registro e correção de placares |
 | **Súmula** | Gols por jogador e defesas do goleiro em cada partida |
@@ -149,8 +149,8 @@ matches/{matchId}
   saves   playerId → defesas na partida
 ```
 
-Escudos e fotos de jogadores são redimensionados para 256 px e gravados em Base64 no próprio
-documento, dispensando um serviço de arquivos e mantendo o projeto no plano gratuito do Firebase.
+Escudos são redimensionados para 256 px e gravados em Base64 no próprio documento, dispensando
+um serviço de arquivos e mantendo o projeto no plano gratuito do Firebase.
 
 As regras de acesso em [`firestore.rules`](firestore.rules) garantem que cada usuário só alcance
 os campeonatos que criou, e os documentos vinculados a eles.
@@ -218,7 +218,7 @@ pasta — nenhuma alteração de código é necessária.
 | Entrega | Data | Funcionalidade apresentada |
 |:-------:|:----:|----------------------------|
 | **AC1** | 14/09 | Autenticação, criação de campeonato, cadastro e listagem de times |
-| **AC2** | 13/10 | Elenco com fotos, rodadas, partidas e registro de resultados |
+| **AC2** | 13/10 | Elenco, rodadas, partidas e registro de resultados |
 | **AC3** | 08/11 | Classificação automática com critérios de desempate |
 | **Final** | 22/11 | Artilharia, ranking de defesas, estatísticas e refinamento da interface |
 

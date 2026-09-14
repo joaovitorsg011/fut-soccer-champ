@@ -133,7 +133,7 @@ class ChampionshipViewModel(
         }
     }
 
-    fun addPlayer(teamId: String, name: String, number: String, position: String, photo: String) {
+    fun addPlayer(teamId: String, name: String, number: String, position: String) {
         if (name.isBlank()) return showError("Informe o nome do jogador.")
         val state = _uiState.value
         if (state.playersOf(teamId).any { it.name.equals(name.trim(), ignoreCase = true) }) {
@@ -151,22 +151,20 @@ class ChampionshipViewModel(
                     teamId = teamId,
                     name = name.trim(),
                     number = number.toIntOrNull() ?: 0,
-                    position = position,
-                    photo = photo
+                    position = position
                 )
             )
         }
     }
 
-    fun updatePlayer(player: Player, name: String, number: String, position: String, photo: String) {
+    fun updatePlayer(player: Player, name: String, number: String, position: String) {
         if (name.isBlank()) return showError("Informe o nome do jogador.")
         launchWithError {
             playerRepository.update(
                 player.copy(
                     name = name.trim(),
                     number = number.toIntOrNull() ?: 0,
-                    position = position,
-                    photo = photo
+                    position = position
                 )
             )
         }

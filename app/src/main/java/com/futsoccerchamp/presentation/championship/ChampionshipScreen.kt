@@ -91,8 +91,8 @@ fun ChampionshipScreen(
         PlayersScreen(
             team = openedTeam,
             players = state.playersOf(openedTeam.id),
-            onAdd = { name, number, position, photo ->
-                viewModel.addPlayer(openedTeam.id, name, number, position, photo)
+            onAdd = { name, number, position ->
+                viewModel.addPlayer(openedTeam.id, name, number, position)
             },
             onEdit = viewModel::updatePlayer,
             onDelete = viewModel::deletePlayer,
