@@ -35,6 +35,7 @@ data class ChampionshipUiState(
     val standings: List<Standing> = emptyList(),
     val scorers: List<PlayerRanking> = emptyList(),
     val goalkeepers: List<PlayerRanking> = emptyList(),
+    val missers: List<PlayerRanking> = emptyList(),
     val error: String? = null
 ) {
     fun team(id: String): Team? = teams.firstOrNull { it.id == id }
@@ -224,9 +225,10 @@ class ChampionshipViewModel(
         homeGoals: Int,
         awayGoals: Int,
         goals: Map<String, Int>,
+        misses: Map<String, Int>,
         saves: Map<String, Int>
     ) = launchWithError {
-        matchRepository.registerResult(match.id, homeGoals, awayGoals, goals, saves)
+        matchRepository.registerResult(match.id, homeGoals, awayGoals, goals, misses, saves)
     }
 
     fun clearResult(match: Match) = launchWithError { matchRepository.clearResult(match.id) }
@@ -248,7 +250,8 @@ class ChampionshipViewModel(
         copy(
             standings = calculateStandings(teams, matches),
             scorers = calculateRankings.topScorers(players, teams, matches),
-            goalkeepers = calculateRankings.topGoalkeepers(players, teams, matches)
+            goalkeepers = calculateRankings.topGoalkeepers(players, teams, matches),
+            missers = calculateRankings.mostMisses(players, teams, matches)
         )
     }
 

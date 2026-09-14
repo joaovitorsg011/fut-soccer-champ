@@ -24,6 +24,10 @@ Um aplicativo Android que centraliza a organização do campeonato — times, el
 e resultados — e deriva automaticamente a classificação e os rankings individuais a partir das
 partidas registradas.
 
+As partidas são **disputas de pênaltis**: em cada confronto, os jogadores escalados cobram uma vez
+cada, e o placar é o número de cobranças convertidas. Uma cobrança perdida conta como erro para o
+cobrador e como defesa para quem estava no gol adversário.
+
 ### 1.3 Objetivos
 
 1. Eliminar o cálculo manual da tabela e os erros dele decorrentes.
@@ -163,20 +167,21 @@ extremidades e o resultado em destaque ao centro. O próprio placar é o control
 registro do resultado. Não há botões auxiliares de adicionar, editar ou remover no cartão.
 
 No registro, o placar não é digitado: toca-se no escudo de um time para destacá-lo e ver seu elenco,
-e os gols são lançados jogador a jogador. O placar exibido é a soma desses lançamentos, o que
-garante que todo gol do resultado tenha um autor identificado.
+e cada jogador escalado tem sua cobrança marcada como convertida ou perdida. O placar exibido é a
+soma das conversões, o que garante que todo gol do resultado tenha um autor identificado.
 
 | ID | Requisito | Status |
 |----|-----------|--------|
 | RF23 | Apresentar cada partida como cartão com escudo, nome e placar em destaque | Implementado |
 | RF24 | Abrir o registro do resultado ao tocar no placar, sem botões auxiliares no cartão | Implementado |
 | RF25 | Selecionar o time tocando em seu escudo, destacando-o e listando seu elenco | Implementado |
-| RF26 | Atribuir os gols aos jogadores do time selecionado | Implementado |
-| RF27 | Registrar o número de defesas do goleiro | Implementado |
-| RF28 | Compor o placar somando os gols atribuídos aos jogadores de cada time | Implementado |
+| RF26 | Marcar cada cobrança como convertida, perdida ou não realizada | Implementado |
+| RF27 | Escalar qualquer jogador do elenco como responsável por defender | Implementado |
+| RF28 | Compor o placar somando as cobranças convertidas de cada time | Implementado |
 | RF29 | Corrigir ou limpar um resultado já registrado | Implementado |
-| RF72 | Registrar os erros cometidos por cada jogador na partida | Planejado — AC3 |
-| RF73 | Exibir o ranking de jogadores com mais erros no campeonato | Planejado — AC3 |
+| RF72 | Registrar os erros de cada jogador a partir das cobranças perdidas | Implementado |
+| RF73 | Exibir o ranking de jogadores com mais erros no campeonato | Implementado |
+| RF74 | Creditar ao defensor uma defesa para cada cobrança perdida pelo adversário | Implementado |
 
 ### 4.7 Classificação
 
@@ -413,18 +418,26 @@ campeonato ao estado anterior ao sorteio.
 Sem essa trava, refazer a tabela invalidaria os jogos já disputados e, por consequência, a
 classificação.
 
-### 7.6 Registro individual
+### 7.6 Disputa de pênaltis
 
-O placar de cada time é a soma dos gols lançados para os seus jogadores. Não existe placar digitado
-manualmente, então todo gol da partida tem autor conhecido e a artilharia nunca diverge do
+Cada partida é uma disputa de pênaltis. Os jogadores escalados cobram uma vez cada, e toda cobrança
+termina em um de dois estados:
+
+```
+Convertida  →  +1 gol para o cobrador  →  +1 no placar do time
+Perdida     →  +1 erro para o cobrador →  +1 defesa para quem defendeu do outro lado
+```
+
+Jogadores não escalados simplesmente não cobram naquela partida e não acumulam nada.
+
+O placar de cada time é, portanto, o número de conversões do seu elenco. Não existe placar digitado
+manualmente: todo gol tem autor conhecido, e artilharia, erros e defesas nunca divergem do
 resultado.
 
-Apenas jogadores marcados como goleiro recebem defesas, e apenas eles aparecem no ranking de
-defesas.
-
-Ao lado dos gols e das defesas, cada jogador também acumula **erros** na partida — lances decisivos
-perdidos. O ranking correspondente segue a mesma lógica dos demais, ordenando do maior total para o
-menor.
+**Quem defende.** A responsabilidade não está presa à posição cadastrada — em caso de suspensão ou
+expulsão do goleiro, qualquer jogador de linha pode ir ao gol. O registro do resultado permite
+escalar qualquer integrante do elenco como defensor da partida, e as defesas do jogo são creditadas
+a ele. A posição cadastrada serve apenas como sugestão inicial.
 
 ---
 

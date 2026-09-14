@@ -36,22 +36,41 @@ import com.futsoccerchamp.presentation.common.EmptyState
 fun RankingsTab(
     scorers: List<PlayerRanking>,
     goalkeepers: List<PlayerRanking>,
+    missers: List<PlayerRanking>,
     modifier: Modifier = Modifier
 ) {
     var selected by remember { mutableIntStateOf(0) }
-    val showingScorers = selected == 0
-    val ranking = if (showingScorers) scorers else goalkeepers
+    val tabs = listOf("Artilharia", "Defesas", "Erros")
+    val ranking = when (selected) {
+        0 -> scorers
+        1 -> goalkeepers
+        else -> missers
+    }
+    val unit = when (selected) {
+        0 -> "gols"
+        1 -> "defesas"
+        else -> "erros"
+    }
 
     Column(modifier.fillMaxSize()) {
         PrimaryTabRow(selectedTabIndex = selected) {
-            Tab(selected = showingScorers, onClick = { selected = 0 }, text = { Text("Artilharia") })
-            Tab(selected = !showingScorers, onClick = { selected = 1 }, text = { Text("Defesas") })
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selected == index,
+                    onClick = { selected = index },
+                    text = { Text(title) }
+                )
+            }
         }
 
         Box(Modifier.fillMaxSize()) {
             if (ranking.isEmpty()) {
                 EmptyState(
-                    title = if (showingScorers) "Nenhum gol registrado" else "Nenhuma defesa registrada",
+                    title = when (selected) {
+                        0 -> "Nenhuma cobrança convertida"
+                        1 -> "Nenhuma defesa registrada"
+                        else -> "Nenhuma cobrança perdida"
+                    },
                     subtitle = "Cadastre os jogadores e registre os resultados das partidas."
                 )
             } else {
@@ -60,11 +79,7 @@ fun RankingsTab(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     itemsIndexed(ranking, key = { _, item -> item.playerId }) { index, item ->
-                        RankingCard(
-                            position = index + 1,
-                            ranking = item,
-                            unit = if (showingScorers) "gols" else "defesas"
-                        )
+                        RankingCard(position = index + 1, ranking = item, unit = unit)
                     }
                 }
             }

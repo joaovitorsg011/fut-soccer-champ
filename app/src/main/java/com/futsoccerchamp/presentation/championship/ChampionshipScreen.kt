@@ -241,7 +241,8 @@ fun ChampionshipScreen(
                     )
                     section == Section.RANKINGS -> RankingsTab(
                         scorers = state.scorers,
-                        goalkeepers = state.goalkeepers
+                        goalkeepers = state.goalkeepers,
+                        missers = state.missers
                     )
                     else -> StatisticsSection(
                         standings = state.standings,

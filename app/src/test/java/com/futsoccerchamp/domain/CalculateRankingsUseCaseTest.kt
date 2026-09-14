@@ -25,7 +25,12 @@ class CalculateRankingsUseCaseTest {
         Player(id = "g2", teamId = "pal", name = "Weverton", position = PlayerPosition.GOALKEEPER.name)
     )
 
-    private fun match(id: String, goals: Map<String, Int>, saves: Map<String, Int>) = Match(
+    private fun match(
+        id: String,
+        goals: Map<String, Int>,
+        saves: Map<String, Int>,
+        misses: Map<String, Int> = emptyMap()
+    ) = Match(
         id = id,
         homeTeamId = "cor",
         awayTeamId = "pal",
@@ -33,6 +38,7 @@ class CalculateRankingsUseCaseTest {
         awayGoals = 0,
         finished = true,
         goals = goals,
+        misses = misses,
         saves = saves
     )
 
@@ -60,14 +66,29 @@ class CalculateRankingsUseCaseTest {
     }
 
     @Test
-    fun `ranking de defesas considera apenas goleiros`() {
+    fun `ranking de defesas aceita qualquer jogador que tenha ido ao gol`() {
         val ranking = useCase.topGoalkeepers(
             players,
             teams,
-            listOf(match("m1", mapOf("p1" to 1), mapOf("g1" to 4, "g2" to 7, "p1" to 2)))
+            listOf(match("m1", emptyMap(), mapOf("g2" to 7, "g1" to 4, "p1" to 2)))
         )
 
-        assertEquals(listOf("g2", "g1"), ranking.map { it.playerId })
+        assertEquals(listOf("g2", "g1", "p1"), ranking.map { it.playerId })
+    }
+
+    @Test
+    fun `ranking de erros soma as cobrancas perdidas`() {
+        val ranking = useCase.mostMisses(
+            players,
+            teams,
+            listOf(
+                match("m1", mapOf("p1" to 1), emptyMap(), misses = mapOf("p2" to 1)),
+                match("m2", emptyMap(), emptyMap(), misses = mapOf("p2" to 1, "p1" to 1))
+            )
+        )
+
+        assertEquals(listOf("p2", "p1"), ranking.map { it.playerId })
+        assertEquals(2, ranking.first().value)
     }
 
     @Test

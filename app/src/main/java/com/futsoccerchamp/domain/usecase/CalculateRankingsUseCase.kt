@@ -11,7 +11,10 @@ class CalculateRankingsUseCase {
         rank(players, teams, matches) { it.goals }
 
     fun topGoalkeepers(players: List<Player>, teams: List<Team>, matches: List<Match>): List<PlayerRanking> =
-        rank(players.filter { it.isGoalkeeper }, teams, matches) { it.saves }
+        rank(players, teams, matches) { it.saves }
+
+    fun mostMisses(players: List<Player>, teams: List<Team>, matches: List<Match>): List<PlayerRanking> =
+        rank(players, teams, matches) { it.misses }
 
     private fun rank(
         players: List<Player>,

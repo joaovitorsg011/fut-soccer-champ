@@ -15,5 +15,6 @@ data class Match(
     val place: String = "",
     val finished: Boolean = false,
     val goals: Map<String, Int> = emptyMap(),
+    val misses: Map<String, Int> = emptyMap(),
     val saves: Map<String, Int> = emptyMap()
 )

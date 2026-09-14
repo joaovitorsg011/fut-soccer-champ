@@ -40,6 +40,7 @@ class MatchRepository(private val firestore: FirebaseFirestore) {
         homeGoals: Int,
         awayGoals: Int,
         goals: Map<String, Int>,
+        misses: Map<String, Int>,
         saves: Map<String, Int>
     ): Result<Unit> = runCatching {
         collection.document(matchId)
@@ -49,6 +50,7 @@ class MatchRepository(private val firestore: FirebaseFirestore) {
                     "awayGoals" to awayGoals,
                     "finished" to true,
                     "goals" to goals,
+                    "misses" to misses,
                     "saves" to saves
                 )
             )
@@ -64,6 +66,7 @@ class MatchRepository(private val firestore: FirebaseFirestore) {
                     "awayGoals" to null,
                     "finished" to false,
                     "goals" to emptyMap<String, Int>(),
+                    "misses" to emptyMap<String, Int>(),
                     "saves" to emptyMap<String, Int>()
                 )
             )

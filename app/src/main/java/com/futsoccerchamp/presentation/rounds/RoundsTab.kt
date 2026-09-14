@@ -61,7 +61,7 @@ fun RoundsTab(
     playersOf: (String) -> List<Player>,
     drawLocked: Boolean,
     onEditMatch: (Match, String, String, String, String, String) -> Unit,
-    onRegisterResult: (Match, Int, Int, Map<String, Int>, Map<String, Int>) -> Unit,
+    onRegisterResult: (Match, Int, Int, Map<String, Int>, Map<String, Int>, Map<String, Int>) -> Unit,
     onClearResult: (Match) -> Unit,
     onGenerateRounds: () -> Unit,
     modifier: Modifier = Modifier
@@ -142,8 +142,8 @@ fun RoundsTab(
             awayPlayers = playersOf(match.awayTeamId),
             onClearResult = { onClearResult(match) },
             onDismiss = { matchForResult = null },
-            onConfirm = { home, away, goals, saves ->
-                onRegisterResult(match, home, away, goals, saves)
+            onConfirm = { home, away, goals, misses, saves ->
+                onRegisterResult(match, home, away, goals, misses, saves)
                 matchForResult = null
             }
         )
