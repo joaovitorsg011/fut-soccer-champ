@@ -25,7 +25,8 @@ class TeamRepository(private val firestore: FirebaseFirestore) {
                 mapOf(
                     "name" to team.name,
                     "abbreviation" to team.abbreviation,
-                    "logoUrl" to team.logoUrl
+                    "logoUrl" to team.logoUrl,
+                    "logo" to team.logo
                 )
             )
             .await()
@@ -33,6 +34,8 @@ class TeamRepository(private val firestore: FirebaseFirestore) {
     }
 
     suspend fun delete(team: Team): Result<Unit> = runCatching {
+        firestore.collection("players").whereEqualTo("teamId", team.id).get().await()
+            .documents.forEach { it.reference.delete().await() }
         val matches = firestore.collection("matches")
             .whereEqualTo("championshipId", team.championshipId).get().await()
         matches.documents

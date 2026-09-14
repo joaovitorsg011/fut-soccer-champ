@@ -13,5 +13,7 @@ data class Match(
     val date: String = "",
     val time: String = "",
     val place: String = "",
-    val finished: Boolean = false
+    val finished: Boolean = false,
+    val goals: Map<String, Int> = emptyMap(),
+    val saves: Map<String, Int> = emptyMap()
 )

@@ -28,13 +28,17 @@ Projeto desenvolvido para a disciplina de **Projeto de Software**.
 
 | Módulo | O que faz |
 |--------|-----------|
-| **Autenticação** | Cadastro, login e sessão persistente com Firebase Authentication |
+| **Autenticação** | Login e sessão persistente com Firebase Authentication |
 | **Campeonatos** | Criação, edição, listagem e exclusão em cascata |
-| **Times** | Cadastro com nome, sigla e escudo, respeitando o limite de participantes |
+| **Times** | Cadastro com nome, sigla e escudo escolhido da galeria |
+| **Elenco** | Jogadores por time, com foto, número da camisa e posição |
 | **Rodadas** | Criação manual ou geração automática do calendário (round-robin) |
 | **Partidas** | Confrontos com data, horário e local; registro e correção de placares |
+| **Súmula** | Gols por jogador e defesas do goleiro em cada partida |
 | **Classificação** | Tabela recalculada a cada resultado, com critérios de desempate |
+| **Artilharia** | Ranking de goleadores e de goleiros com mais defesas |
 | **Estatísticas** | Gols, média por partida, maior goleada, melhor ataque e melhor defesa |
+| **Aparência** | Alternância entre tema claro, escuro e o padrão do sistema, com preferência salva |
 
 ## Arquitetura
 
@@ -63,16 +67,17 @@ O projeto segue **MVVM** com **Repository Pattern**, dividido em três camadas i
 ```
 com.futsoccerchamp
 ├── data
-│   ├── model         Championship, Team, Round, Match
-│   ├── repository    Auth, Championship, Team, Round, Match
+│   ├── model         Championship, Team, Player, Round, Match
+│   ├── repository    Auth, Championship, Team, Player, Round, Match
 │   └── firebase      Service locator das dependências
 ├── domain
-│   ├── model         Standing
-│   └── usecase       CalculateStandings, GenerateRounds
+│   ├── model         Standing, PlayerRanking
+│   └── usecase       CalculateStandings, CalculateRankings, GenerateRounds
 └── presentation
     ├── splash        auth        home
-    ├── championship  teams       rounds
-    ├── matches       standings   statistics
+    ├── championship  teams       players
+    ├── rounds        matches     standings
+    ├── rankings      statistics
     ├── common        theme
     └── AppNavigation, Routes
 ```
@@ -111,10 +116,12 @@ Splash
   └── Login / Cadastro
         └── Meus campeonatos
               └── Campeonato  (menu lateral)
-                    ├── Classificação      tela inicial
-                    ├── Times
+                    ├── Classificação          tela inicial
+                    ├── Times ──► Elenco do time
                     ├── Rodadas e partidas
-                    └── Estatísticas
+                    ├── Artilharia e defesas
+                    ├── Estatísticas
+                    └── Tema claro / escuro / sistema
 ```
 
 ## Modelo de dados
@@ -132,10 +139,18 @@ teams/{teamId}
 rounds/{roundId}
   championshipId · number
 
+players/{playerId}
+  championshipId · teamId · name · number · position · photo · createdAt
+
 matches/{matchId}
   championshipId · roundId · homeTeamId · awayTeamId
   homeGoals · awayGoals · date · time · place · finished
+  goals   playerId → gols na partida
+  saves   playerId → defesas na partida
 ```
+
+Escudos e fotos de jogadores são redimensionados para 256 px e gravados em Base64 no próprio
+documento, dispensando um serviço de arquivos e mantendo o projeto no plano gratuito do Firebase.
 
 As regras de acesso em [`firestore.rules`](firestore.rules) garantem que cada usuário só alcance
 os campeonatos que criou, e os documentos vinculados a eles.
@@ -165,7 +180,9 @@ cd fut-soccer-champ
 1. Crie um projeto no [Firebase Console](https://console.firebase.google.com).
 2. Adicione um app Android com o package `com.futsoccerchamp`.
 3. Baixe o `google-services.json` e coloque em `app/`.
-4. Ative **Authentication → Sign-in method → E-mail/senha**.
+4. Ative **Authentication → Sign-in method → E-mail/senha** e crie o usuário administrador
+   em **Authentication → Users → Adicionar usuário**. O aplicativo não possui tela de cadastro:
+   o acesso é restrito às contas criadas no console.
 5. Crie o **Cloud Firestore** e publique o conteúdo de `firestore.rules`.
 
 O projeto compila sem esse arquivo — o plugin do Google Services só é aplicado quando ele existe,
@@ -187,6 +204,8 @@ e são cobertas por testes de unidade que rodam direto na JVM:
   desempate por saldo, desempate por gols marcados e aproveitamento.
 - **`GenerateRoundsUseCaseTest`** — número de rodadas com times pares e ímpares, folga por rodada
   e garantia de que nenhum confronto se repete.
+- **`CalculateRankingsUseCaseTest`** — soma de gols e defesas, ordenação por total, desempate por
+  número de partidas e filtro de goleiros no ranking de defesas.
 
 ## Personalização visual
 
@@ -199,9 +218,9 @@ pasta — nenhuma alteração de código é necessária.
 | Entrega | Data | Funcionalidade apresentada |
 |:-------:|:----:|----------------------------|
 | **AC1** | 14/09 | Autenticação, criação de campeonato, cadastro e listagem de times |
-| **AC2** | 13/10 | Rodadas, partidas e registro de resultados |
+| **AC2** | 13/10 | Elenco com fotos, rodadas, partidas e registro de resultados |
 | **AC3** | 08/11 | Classificação automática com critérios de desempate |
-| **Final** | 22/11 | Estatísticas, geração automática de rodadas e refinamento da interface |
+| **Final** | 22/11 | Artilharia, ranking de defesas, estatísticas e refinamento da interface |
 
 ## Equipe
 

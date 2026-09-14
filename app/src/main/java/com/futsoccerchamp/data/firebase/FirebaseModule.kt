@@ -3,6 +3,7 @@ package com.futsoccerchamp.data.firebase
 import com.futsoccerchamp.data.repository.AuthRepository
 import com.futsoccerchamp.data.repository.ChampionshipRepository
 import com.futsoccerchamp.data.repository.MatchRepository
+import com.futsoccerchamp.data.repository.PlayerRepository
 import com.futsoccerchamp.data.repository.RoundRepository
 import com.futsoccerchamp.data.repository.TeamRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -21,4 +22,5 @@ object FirebaseModule {
     val teamRepository: TeamRepository by lazy { TeamRepository(firestore) }
     val roundRepository: RoundRepository by lazy { RoundRepository(firestore) }
     val matchRepository: MatchRepository by lazy { MatchRepository(firestore) }
+    val playerRepository: PlayerRepository by lazy { PlayerRepository(firestore) }
 }

@@ -37,7 +37,7 @@ class ChampionshipRepository(private val firestore: FirebaseFirestore) {
     }
 
     suspend fun delete(id: String): Result<Unit> = runCatching {
-        listOf("teams", "rounds", "matches").forEach { name ->
+        listOf("teams", "rounds", "matches", "players").forEach { name ->
             firestore.collection(name).whereEqualTo("championshipId", id).get().await()
                 .documents.forEach { it.reference.delete().await() }
         }

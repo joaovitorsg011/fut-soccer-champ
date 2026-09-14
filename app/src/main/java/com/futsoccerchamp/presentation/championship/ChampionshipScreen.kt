@@ -11,9 +11,13 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.EmojiEvents as EmojiEventsIcon
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -43,17 +47,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.futsoccerchamp.presentation.common.LoadingBox
+import com.futsoccerchamp.data.model.Team
+import com.futsoccerchamp.presentation.players.PlayersScreen
+import com.futsoccerchamp.presentation.rankings.RankingsTab
 import com.futsoccerchamp.presentation.rounds.RoundsTab
 import com.futsoccerchamp.presentation.standings.StandingsTab
 import com.futsoccerchamp.presentation.statistics.StatisticsSection
 import com.futsoccerchamp.presentation.teams.TeamFormDialog
 import com.futsoccerchamp.presentation.teams.TeamsTab
+import com.futsoccerchamp.presentation.theme.ThemeMode
 import kotlinx.coroutines.launch
 
 private enum class Section(val label: String, val icon: ImageVector) {
     STANDINGS("Classificação", Icons.Default.Leaderboard),
     TEAMS("Times", Icons.Default.Groups),
     ROUNDS("Rodadas e partidas", Icons.Default.SportsSoccer),
+    RANKINGS("Artilharia e defesas", Icons.Default.EmojiEventsIcon),
     STATISTICS("Estatísticas", Icons.Default.QueryStats)
 }
 
@@ -61,6 +70,8 @@ private enum class Section(val label: String, val icon: ImageVector) {
 @Composable
 fun ChampionshipScreen(
     viewModel: ChampionshipViewModel,
+    themeMode: ThemeMode,
+    onThemeModeChange: (ThemeMode) -> Unit,
     onBackToChampionships: () -> Unit,
     onSignOut: () -> Unit
 ) {
@@ -72,6 +83,23 @@ fun ChampionshipScreen(
     var section by remember { mutableStateOf(Section.STANDINGS) }
     var showTeamDialog by remember { mutableStateOf(false) }
     var showEditChampionship by remember { mutableStateOf(false) }
+    var openedTeamId by remember { mutableStateOf<String?>(null) }
+
+    val openedTeam: Team? = openedTeamId?.let { state.team(it) }
+
+    if (openedTeam != null) {
+        PlayersScreen(
+            team = openedTeam,
+            players = state.playersOf(openedTeam.id),
+            onAdd = { name, number, position, photo ->
+                viewModel.addPlayer(openedTeam.id, name, number, position, photo)
+            },
+            onEdit = viewModel::updatePlayer,
+            onDelete = viewModel::deletePlayer,
+            onBack = { openedTeamId = null }
+        )
+        return
+    }
 
     LaunchedEffect(state.error) {
         state.error?.let {
@@ -122,6 +150,13 @@ fun ChampionshipScreen(
                         showEditChampionship = true
                         scope.launch { drawerState.close() }
                     },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(themeMode.icon(), contentDescription = null) },
+                    label = { Text(themeMode.label) },
+                    selected = false,
+                    onClick = { onThemeModeChange(themeMode.next()) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
@@ -178,6 +213,8 @@ fun ChampionshipScreen(
                     section == Section.TEAMS -> TeamsTab(
                         teams = state.teams,
                         teamLimit = state.championship?.teamLimit ?: 0,
+                        playerCountOf = state::playerCountOf,
+                        onOpenTeam = { openedTeamId = it.id },
                         onEdit = viewModel::updateTeam,
                         onDelete = viewModel::deleteTeam
                     )
@@ -186,6 +223,7 @@ fun ChampionshipScreen(
                         teams = state.teams,
                         matchesOf = state::matchesOfRound,
                         teamOf = state::team,
+                        playersOf = state::playersOf,
                         onAddMatch = viewModel::addMatch,
                         onEditMatch = viewModel::updateMatch,
                         onRegisterResult = viewModel::registerResult,
@@ -193,6 +231,10 @@ fun ChampionshipScreen(
                         onDeleteMatch = viewModel::deleteMatch,
                         onDeleteRound = viewModel::deleteRound,
                         onGenerateRounds = viewModel::generateAllRounds
+                    )
+                    section == Section.RANKINGS -> RankingsTab(
+                        scorers = state.scorers,
+                        goalkeepers = state.goalkeepers
                     )
                     else -> StatisticsSection(
                         standings = state.standings,
@@ -230,4 +272,10 @@ fun ChampionshipScreen(
             }
         )
     }
+}
+
+private fun ThemeMode.icon(): ImageVector = when (this) {
+    ThemeMode.SYSTEM -> Icons.Default.PhoneAndroid
+    ThemeMode.LIGHT -> Icons.Default.LightMode
+    ThemeMode.DARK -> Icons.Default.DarkMode
 }

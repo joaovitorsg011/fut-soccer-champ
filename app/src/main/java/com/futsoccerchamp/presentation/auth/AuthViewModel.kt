@@ -37,19 +37,6 @@ class AuthViewModel(
         run { repository.signIn(email, password) }
     }
 
-    fun signUp(name: String, email: String, password: String, confirmPassword: String) {
-        val validation = when {
-            name.isBlank() -> "Informe seu nome."
-            password != confirmPassword -> "As senhas não coincidem."
-            else -> validate(email = email, password = password)
-        }
-        if (validation != null) {
-            _uiState.value = AuthUiState(error = validation)
-            return
-        }
-        run { repository.signUp(name, email, password) }
-    }
-
     fun signOut() = repository.signOut()
 
     fun consumeError() {
@@ -78,7 +65,6 @@ class AuthViewModel(
         error.message?.contains("password is invalid", true) == true ||
             error.message?.contains("credential is incorrect", true) == true -> "E-mail ou senha incorretos."
         error.message?.contains("no user record", true) == true -> "Conta não encontrada."
-        error.message?.contains("already in use", true) == true -> "Este e-mail já está cadastrado."
         error.message?.contains("network", true) == true -> "Sem conexão com a internet."
         else -> error.message ?: "Não foi possível concluir a operação."
     }

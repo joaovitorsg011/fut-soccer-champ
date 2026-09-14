@@ -33,11 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.futsoccerchamp.data.model.Match
+import com.futsoccerchamp.data.model.Player
 import com.futsoccerchamp.data.model.Round
 import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.EmptyState
 import com.futsoccerchamp.presentation.matches.MatchFormDialog
+import com.futsoccerchamp.presentation.matches.MatchResultDialog
 import com.futsoccerchamp.presentation.teams.TeamBadge
 
 @Composable
@@ -46,9 +48,10 @@ fun RoundsTab(
     teams: List<Team>,
     matchesOf: (String) -> List<Match>,
     teamOf: (String) -> Team?,
+    playersOf: (String) -> List<Player>,
     onAddMatch: (roundId: String, homeTeamId: String, awayTeamId: String, date: String, time: String, place: String) -> Unit,
     onEditMatch: (Match, String, String, String, String, String) -> Unit,
-    onRegisterResult: (Match, String, String) -> Unit,
+    onRegisterResult: (Match, String, String, Map<String, Int>, Map<String, Int>) -> Unit,
     onClearResult: (Match) -> Unit,
     onDeleteMatch: (Match) -> Unit,
     onDeleteRound: (Round) -> Unit,
@@ -128,14 +131,15 @@ fun RoundsTab(
     }
 
     matchForResult?.let { match ->
-        ResultDialog(
-            homeName = teamOf(match.homeTeamId)?.name.orEmpty(),
-            awayName = teamOf(match.awayTeamId)?.name.orEmpty(),
-            initialHomeGoals = match.homeGoals?.toString().orEmpty(),
-            initialAwayGoals = match.awayGoals?.toString().orEmpty(),
+        MatchResultDialog(
+            match = match,
+            homeTeam = teamOf(match.homeTeamId),
+            awayTeam = teamOf(match.awayTeamId),
+            homePlayers = playersOf(match.homeTeamId),
+            awayPlayers = playersOf(match.awayTeamId),
             onDismiss = { matchForResult = null },
-            onConfirm = { home, away ->
-                onRegisterResult(match, home, away)
+            onConfirm = { home, away, goals, saves ->
+                onRegisterResult(match, home, away, goals, saves)
                 matchForResult = null
             }
         )
@@ -282,44 +286,4 @@ private fun MatchRow(
             }
         }
     }
-}
-
-@Composable
-private fun ResultDialog(
-    homeName: String,
-    awayName: String,
-    initialHomeGoals: String,
-    initialAwayGoals: String,
-    onDismiss: () -> Unit,
-    onConfirm: (String, String) -> Unit
-) {
-    var homeGoals by remember { mutableStateOf(initialHomeGoals) }
-    var awayGoals by remember { mutableStateOf(initialAwayGoals) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Registrar resultado") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = homeGoals,
-                    onValueChange = { input -> homeGoals = input.filter { it.isDigit() }.take(2) },
-                    label = { Text(homeName.ifBlank { "Mandante" }) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = awayGoals,
-                    onValueChange = { input -> awayGoals = input.filter { it.isDigit() }.take(2) },
-                    label = { Text(awayName.ifBlank { "Visitante" }) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(homeGoals, awayGoals) }) { Text("Salvar") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
-    )
 }

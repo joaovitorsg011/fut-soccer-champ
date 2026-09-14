@@ -13,7 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.futsoccerchamp.data.model.Championship
@@ -41,11 +45,14 @@ import com.futsoccerchamp.presentation.championship.ChampionshipFormDialog
 import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.EmptyState
 import com.futsoccerchamp.presentation.common.LoadingBox
+import com.futsoccerchamp.presentation.theme.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    themeMode: ThemeMode,
+    onThemeModeChange: (ThemeMode) -> Unit,
     onOpenChampionship: (String) -> Unit,
     onSignOut: () -> Unit
 ) {
@@ -66,6 +73,9 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("Meus campeonatos") },
                 actions = {
+                    IconButton(onClick = { onThemeModeChange(themeMode.next()) }) {
+                        Icon(themeMode.icon(), contentDescription = themeMode.label)
+                    }
                     IconButton(onClick = onSignOut) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sair")
                     }
@@ -160,4 +170,10 @@ private fun ChampionshipCard(
             }
         }
     }
+}
+
+private fun ThemeMode.icon(): ImageVector = when (this) {
+    ThemeMode.SYSTEM -> Icons.Default.PhoneAndroid
+    ThemeMode.LIGHT -> Icons.Default.LightMode
+    ThemeMode.DARK -> Icons.Default.DarkMode
 }

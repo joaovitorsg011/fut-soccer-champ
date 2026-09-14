@@ -28,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,10 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.futsoccerchamp.presentation.common.AuthBackground
 
 @Composable
-fun LoginScreen(
-    viewModel: AuthViewModel,
-    onNavigateToSignUp: () -> Unit
-) {
+fun LoginScreen(viewModel: AuthViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -83,68 +79,6 @@ fun LoginScreen(
             loading = state.loading,
             onClick = { viewModel.signIn(email, password) }
         )
-        TextButton(onClick = onNavigateToSignUp, modifier = Modifier.fillMaxWidth()) {
-            Text("Não tenho conta. Criar agora")
-        }
-    }
-}
-
-@Composable
-fun SignUpScreen(
-    viewModel: AuthViewModel,
-    onNavigateToLogin: () -> Unit
-) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    var name by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
-
-    AuthScaffold(title = "Criar conta", subtitle = "Leva menos de um minuto") {
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nome") },
-            singleLine = true,
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-mail") },
-            singleLine = true,
-            shape = RoundedCornerShape(14.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(12.dp))
-        PasswordField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Senha",
-            imeAction = ImeAction.Next
-        )
-        Spacer(Modifier.height(12.dp))
-        PasswordField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = "Confirmar senha",
-            imeAction = ImeAction.Done
-        )
-
-        ErrorText(state.error)
-
-        Spacer(Modifier.height(24.dp))
-        PrimaryButton(
-            text = "Cadastrar",
-            loading = state.loading,
-            onClick = { viewModel.signUp(name, email, password, confirmPassword) }
-        )
-        TextButton(onClick = onNavigateToLogin, modifier = Modifier.fillMaxWidth()) {
-            Text("Já tenho conta. Entrar")
-        }
     }
 }
 

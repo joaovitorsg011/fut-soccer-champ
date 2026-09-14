@@ -5,13 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.futsoccerchamp.data.firebase.FirebaseModule
 import com.futsoccerchamp.data.model.Championship
 import com.futsoccerchamp.data.model.Match
+import com.futsoccerchamp.data.model.Player
+import com.futsoccerchamp.data.model.PlayerPosition
 import com.futsoccerchamp.data.model.Round
 import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.data.repository.ChampionshipRepository
 import com.futsoccerchamp.data.repository.MatchRepository
+import com.futsoccerchamp.data.repository.PlayerRepository
 import com.futsoccerchamp.data.repository.RoundRepository
 import com.futsoccerchamp.data.repository.TeamRepository
+import com.futsoccerchamp.domain.model.PlayerRanking
 import com.futsoccerchamp.domain.model.Standing
+import com.futsoccerchamp.domain.usecase.CalculateRankingsUseCase
 import com.futsoccerchamp.domain.usecase.CalculateStandingsUseCase
 import com.futsoccerchamp.domain.usecase.GenerateRoundsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,14 +31,19 @@ data class ChampionshipUiState(
     val teams: List<Team> = emptyList(),
     val rounds: List<Round> = emptyList(),
     val matches: List<Match> = emptyList(),
+    val players: List<Player> = emptyList(),
     val standings: List<Standing> = emptyList(),
+    val scorers: List<PlayerRanking> = emptyList(),
+    val goalkeepers: List<PlayerRanking> = emptyList(),
     val error: String? = null
 ) {
     fun team(id: String): Team? = teams.firstOrNull { it.id == id }
 
     fun matchesOfRound(roundId: String): List<Match> = matches.filter { it.roundId == roundId }
 
-    val finishedMatches: List<Match> get() = matches.filter { it.finished }
+    fun playersOf(teamId: String): List<Player> = players.filter { it.teamId == teamId }
+
+    fun playerCountOf(teamId: String): Int = players.count { it.teamId == teamId }
 }
 
 class ChampionshipViewModel(
@@ -42,7 +52,9 @@ class ChampionshipViewModel(
     private val teamRepository: TeamRepository = FirebaseModule.teamRepository,
     private val roundRepository: RoundRepository = FirebaseModule.roundRepository,
     private val matchRepository: MatchRepository = FirebaseModule.matchRepository,
+    private val playerRepository: PlayerRepository = FirebaseModule.playerRepository,
     private val calculateStandings: CalculateStandingsUseCase = CalculateStandingsUseCase(),
+    private val calculateRankings: CalculateRankingsUseCase = CalculateRankingsUseCase(),
     private val generateRounds: GenerateRoundsUseCase = GenerateRoundsUseCase()
 ) : ViewModel() {
 
@@ -65,6 +77,10 @@ class ChampionshipViewModel(
             update { copy(matches = matches) }
             recalculate()
         }
+        observe(playerRepository.observeByChampionship(championshipId)) { players ->
+            update { copy(players = players.sortedWith(compareBy({ it.number }, { it.name }))) }
+            recalculate()
+        }
     }
 
     fun updateChampionship(name: String, season: String, teamLimit: String, description: String) {
@@ -82,7 +98,7 @@ class ChampionshipViewModel(
         }
     }
 
-    fun addTeam(name: String, abbreviation: String, logoUrl: String) {
+    fun addTeam(name: String, abbreviation: String, logo: String) {
         val state = _uiState.value
         val limit = state.championship?.teamLimit ?: 0
         when {
@@ -98,24 +114,65 @@ class ChampionshipViewModel(
                     championshipId = championshipId,
                     name = name.trim(),
                     abbreviation = abbreviation.trim().uppercase(),
-                    logoUrl = logoUrl.trim()
+                    logo = logo
                 )
             )
         }
     }
 
-    fun updateTeam(team: Team, name: String, abbreviation: String, logoUrl: String) {
+    fun updateTeam(team: Team, name: String, abbreviation: String, logo: String) {
         if (name.isBlank()) return showError("Informe o nome do time.")
         launchWithError {
             teamRepository.update(
                 team.copy(
                     name = name.trim(),
                     abbreviation = abbreviation.trim().uppercase(),
-                    logoUrl = logoUrl.trim()
+                    logo = logo
                 )
             )
         }
     }
+
+    fun addPlayer(teamId: String, name: String, number: String, position: String, photo: String) {
+        if (name.isBlank()) return showError("Informe o nome do jogador.")
+        val state = _uiState.value
+        if (state.playersOf(teamId).any { it.name.equals(name.trim(), ignoreCase = true) }) {
+            return showError("Este jogador já está no elenco.")
+        }
+        if (position == PlayerPosition.GOALKEEPER.name &&
+            state.playersOf(teamId).count { it.isGoalkeeper } >= MAX_GOALKEEPERS
+        ) {
+            return showError("O time já tem $MAX_GOALKEEPERS goleiros cadastrados.")
+        }
+        launchWithError {
+            playerRepository.create(
+                Player(
+                    championshipId = championshipId,
+                    teamId = teamId,
+                    name = name.trim(),
+                    number = number.toIntOrNull() ?: 0,
+                    position = position,
+                    photo = photo
+                )
+            )
+        }
+    }
+
+    fun updatePlayer(player: Player, name: String, number: String, position: String, photo: String) {
+        if (name.isBlank()) return showError("Informe o nome do jogador.")
+        launchWithError {
+            playerRepository.update(
+                player.copy(
+                    name = name.trim(),
+                    number = number.toIntOrNull() ?: 0,
+                    position = position,
+                    photo = photo
+                )
+            )
+        }
+    }
+
+    fun deletePlayer(player: Player) = launchWithError { playerRepository.delete(player.id) }
 
     fun deleteTeam(team: Team) = launchWithError { teamRepository.delete(team) }
 
@@ -184,13 +241,27 @@ class ChampionshipViewModel(
         }
     }
 
-    fun registerResult(match: Match, homeGoals: String, awayGoals: String) {
+    fun registerResult(
+        match: Match,
+        homeGoals: String,
+        awayGoals: String,
+        goals: Map<String, Int>,
+        saves: Map<String, Int>
+    ) {
         val home = homeGoals.toIntOrNull()
         val away = awayGoals.toIntOrNull()
         if (home == null || away == null || home < 0 || away < 0) {
             return showError("Informe um placar válido.")
         }
-        launchWithError { matchRepository.registerResult(match.id, home, away) }
+
+        val state = _uiState.value
+        val homeAssigned = state.playersOf(match.homeTeamId).sumOf { goals[it.id] ?: 0 }
+        val awayAssigned = state.playersOf(match.awayTeamId).sumOf { goals[it.id] ?: 0 }
+        if (homeAssigned > home || awayAssigned > away) {
+            return showError("Os gols dos jogadores excedem o placar informado.")
+        }
+
+        launchWithError { matchRepository.registerResult(match.id, home, away, goals, saves) }
     }
 
     fun clearResult(match: Match) = launchWithError { matchRepository.clearResult(match.id) }
@@ -207,7 +278,11 @@ class ChampionshipViewModel(
     }
 
     private fun recalculate() = update {
-        copy(standings = calculateStandings(teams, matches))
+        copy(
+            standings = calculateStandings(teams, matches),
+            scorers = calculateRankings.topScorers(players, teams, matches),
+            goalkeepers = calculateRankings.topGoalkeepers(players, teams, matches)
+        )
     }
 
     private fun launchWithError(block: suspend () -> Result<*>) {
@@ -220,5 +295,9 @@ class ChampionshipViewModel(
 
     private fun update(block: ChampionshipUiState.() -> ChampionshipUiState) {
         _uiState.value = _uiState.value.block()
+    }
+
+    private companion object {
+        const val MAX_GOALKEEPERS = 3
     }
 }

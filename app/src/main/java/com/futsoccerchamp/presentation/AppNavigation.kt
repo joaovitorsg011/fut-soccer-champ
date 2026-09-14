@@ -18,15 +18,18 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.futsoccerchamp.presentation.auth.AuthViewModel
 import com.futsoccerchamp.presentation.auth.LoginScreen
-import com.futsoccerchamp.presentation.auth.SignUpScreen
 import com.futsoccerchamp.presentation.championship.ChampionshipScreen
 import com.futsoccerchamp.presentation.championship.ChampionshipViewModel
 import com.futsoccerchamp.presentation.home.HomeScreen
 import com.futsoccerchamp.presentation.home.HomeViewModel
 import com.futsoccerchamp.presentation.splash.SplashScreen
+import com.futsoccerchamp.presentation.theme.ThemeMode
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    themeMode: ThemeMode,
+    onThemeModeChange: (ThemeMode) -> Unit
+) {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val userId by authViewModel.userId.collectAsStateWithLifecycle()
@@ -42,17 +45,7 @@ fun AppNavigation() {
         }
 
         composable(Routes.LOGIN) {
-            LoginScreen(
-                viewModel = authViewModel,
-                onNavigateToSignUp = { navController.navigate(Routes.SIGN_UP) }
-            )
-        }
-
-        composable(Routes.SIGN_UP) {
-            SignUpScreen(
-                viewModel = authViewModel,
-                onNavigateToLogin = { navController.popBackStack() }
-            )
+            LoginScreen(viewModel = authViewModel)
         }
 
         composable(Routes.HOME) {
@@ -64,6 +57,8 @@ fun AppNavigation() {
                 )
                 HomeScreen(
                     viewModel = homeViewModel,
+                    themeMode = themeMode,
+                    onThemeModeChange = onThemeModeChange,
                     onOpenChampionship = { navController.navigate(Routes.championship(it)) },
                     onSignOut = { authViewModel.signOut() }
                 )
@@ -81,6 +76,8 @@ fun AppNavigation() {
             )
             ChampionshipScreen(
                 viewModel = championshipViewModel,
+                themeMode = themeMode,
+                onThemeModeChange = onThemeModeChange,
                 onBackToChampionships = { navController.popBackStack(Routes.HOME, inclusive = false) },
                 onSignOut = { authViewModel.signOut() }
             )

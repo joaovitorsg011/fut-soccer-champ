@@ -8,5 +8,6 @@ data class Team(
     val name: String = "",
     val abbreviation: String = "",
     val logoUrl: String = "",
+    val logo: String = "",
     val createdAt: Long = 0L
 )

@@ -35,23 +35,38 @@ class MatchRepository(private val firestore: FirebaseFirestore) {
         Unit
     }
 
-    suspend fun registerResult(matchId: String, homeGoals: Int, awayGoals: Int): Result<Unit> =
-        runCatching {
-            collection.document(matchId)
-                .update(
-                    mapOf(
-                        "homeGoals" to homeGoals,
-                        "awayGoals" to awayGoals,
-                        "finished" to true
-                    )
+    suspend fun registerResult(
+        matchId: String,
+        homeGoals: Int,
+        awayGoals: Int,
+        goals: Map<String, Int>,
+        saves: Map<String, Int>
+    ): Result<Unit> = runCatching {
+        collection.document(matchId)
+            .update(
+                mapOf(
+                    "homeGoals" to homeGoals,
+                    "awayGoals" to awayGoals,
+                    "finished" to true,
+                    "goals" to goals,
+                    "saves" to saves
                 )
-                .await()
-            Unit
-        }
+            )
+            .await()
+        Unit
+    }
 
     suspend fun clearResult(matchId: String): Result<Unit> = runCatching {
         collection.document(matchId)
-            .update(mapOf("homeGoals" to null, "awayGoals" to null, "finished" to false))
+            .update(
+                mapOf(
+                    "homeGoals" to null,
+                    "awayGoals" to null,
+                    "finished" to false,
+                    "goals" to emptyMap<String, Int>(),
+                    "saves" to emptyMap<String, Int>()
+                )
+            )
             .await()
         Unit
     }
