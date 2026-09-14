@@ -1,0 +1,63 @@
+package com.futsoccerchamp.data.repository
+
+import com.futsoccerchamp.data.model.Match
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.tasks.await
+
+class MatchRepository(private val firestore: FirebaseFirestore) {
+
+    private val collection = firestore.collection("matches")
+
+    fun observeByChampionship(championshipId: String): Flow<List<Match>> =
+        collection.whereEqualTo("championshipId", championshipId).snapshotsAsFlow()
+
+    fun observeByRound(roundId: String): Flow<List<Match>> =
+        collection.whereEqualTo("roundId", roundId).snapshotsAsFlow()
+
+    suspend fun create(match: Match): Result<String> = runCatching {
+        collection.add(match).await().id
+    }
+
+    suspend fun update(match: Match): Result<Unit> = runCatching {
+        collection.document(match.id)
+            .update(
+                mapOf(
+                    "roundId" to match.roundId,
+                    "homeTeamId" to match.homeTeamId,
+                    "awayTeamId" to match.awayTeamId,
+                    "date" to match.date,
+                    "time" to match.time,
+                    "place" to match.place
+                )
+            )
+            .await()
+        Unit
+    }
+
+    suspend fun registerResult(matchId: String, homeGoals: Int, awayGoals: Int): Result<Unit> =
+        runCatching {
+            collection.document(matchId)
+                .update(
+                    mapOf(
+                        "homeGoals" to homeGoals,
+                        "awayGoals" to awayGoals,
+                        "finished" to true
+                    )
+                )
+                .await()
+            Unit
+        }
+
+    suspend fun clearResult(matchId: String): Result<Unit> = runCatching {
+        collection.document(matchId)
+            .update(mapOf("homeGoals" to null, "awayGoals" to null, "finished" to false))
+            .await()
+        Unit
+    }
+
+    suspend fun delete(matchId: String): Result<Unit> = runCatching {
+        collection.document(matchId).delete().await()
+        Unit
+    }
+}

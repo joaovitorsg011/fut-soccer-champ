@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Fundo provisório das telas de splash e login.
+  Para usar uma foto, troque este arquivo por bg_auth.jpg/png na pasta drawable
+  (mesmo nome, sem alterar o código).
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#0B6B3A"
+        android:centerColor="#08502C"
+        android:endColor="#04301A"
+        android:type="linear" />
+</shape>

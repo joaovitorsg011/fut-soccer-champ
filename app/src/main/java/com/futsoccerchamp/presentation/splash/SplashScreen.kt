@@ -1,0 +1,102 @@
+package com.futsoccerchamp.presentation.splash
+
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.futsoccerchamp.presentation.common.AuthBackground
+import kotlinx.coroutines.delay
+
+/** Tela inicial exibida enquanto o app resolve se existe sessão ativa. */
+@Composable
+fun SplashScreen(onFinished: () -> Unit) {
+    var visible by remember { mutableStateOf(false) }
+    val alpha by animateFloatAsState(if (visible) 1f else 0f, tween(700), label = "splashAlpha")
+    val scale by animateFloatAsState(if (visible) 1f else 0.8f, tween(700), label = "splashScale")
+
+    LaunchedEffect(Unit) {
+        visible = true
+        delay(1800)
+        onFinished()
+    }
+
+    AuthBackground {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp)
+                .alpha(alpha),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = Color.White.copy(alpha = 0.14f),
+                modifier = Modifier.size(128.dp).scale(scale)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.SportsSoccer,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(72.dp)
+                    )
+                }
+            }
+
+            Text(
+                "FUT SOCCER CHAMP",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 2.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 28.dp)
+            )
+            Text(
+                "Crie, organize e acompanhe seus campeonatos",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.75f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        LinearProgressIndicator(
+            color = Color.White,
+            trackColor = Color.White.copy(alpha = 0.25f),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 48.dp, vertical = 56.dp)
+                .fillMaxWidth()
+        )
+    }
+}
