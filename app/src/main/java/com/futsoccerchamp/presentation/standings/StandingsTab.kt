@@ -62,7 +62,6 @@ fun StandingsTab(
         }
     }
 }
-
 @Composable
 private fun StandingsHeader(scrollState: androidx.compose.foundation.ScrollState) {
     Surface(color = MaterialTheme.colorScheme.surfaceVariant) {

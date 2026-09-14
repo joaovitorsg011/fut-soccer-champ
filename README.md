@@ -235,8 +235,8 @@ onde cada issue está vinculada à entrega correspondente.
 |:-------:|:----:|----------------------------|
 | **AC1** | 14/09 | Autenticação, campeonatos, times, elenco, rodadas, resultados, classificação e rankings |
 | **AC2** | 13/10 | Hierarquia Liga → Torneio → Temporada, com histórico acumulado de times e jogadores |
-| **AC3** | 08/11 | Classificação automática com critérios de desempate |
-| **Final** | 22/11 | Estatísticas com filtro por torneio, temporada e time, e refinamento da interface |
+| **AC3** | 08/11 | Histórico consolidado, estatísticas filtráveis e perfil visualizador |
+| **Final** | 22/11 | Mata-mata e fase de grupos, exportação da tabela em imagem e refinamento da interface |
 
 ### Próxima evolução da modelagem
 
@@ -254,7 +254,7 @@ jogador ou de um time ao longo de todas as temporadas.
 | Board do projeto | [GitHub Projects](https://github.com/users/joaovitorsg011/projects/1) |
 | Tarefas por entrega | [Milestones](https://github.com/joaovitorsg011/fut-soccer-champ/milestones) |
 
-A especificação reúne os 55 requisitos funcionais, os requisitos não funcionais, as decisões de
+A especificação reúne os 73 requisitos funcionais, os requisitos não funcionais, as decisões de
 arquitetura, o modelo de dados e as regras de negócio. O board organiza as mesmas funcionalidades
 como tarefas agrupadas por entrega.
 

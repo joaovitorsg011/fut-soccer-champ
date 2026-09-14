@@ -154,6 +154,7 @@ a tabela do Campeonato Brasileiro, em que o calendário nasce pronto do sorteio.
 | RF21 | Exibir uma rodada por vez, navegando por deslize lateral e por um seletor de rodadas | Implementado |
 | RF22 | Definir data, horário e local da partida | Implementado |
 | RF55 | Reiniciar a competição, apagando rodadas, partidas e placares e preservando times e jogadores | Implementado |
+| RF59 | Enriquecer o cartão do confronto com aproveitamento recente e histórico do duelo | Planejado — Final |
 
 ### 4.6 Resultados
 
@@ -174,6 +175,8 @@ garante que todo gol do resultado tenha um autor identificado.
 | RF27 | Registrar o número de defesas do goleiro | Implementado |
 | RF28 | Compor o placar somando os gols atribuídos aos jogadores de cada time | Implementado |
 | RF29 | Corrigir ou limpar um resultado já registrado | Implementado |
+| RF72 | Registrar os erros cometidos por cada jogador na partida | Planejado — AC3 |
+| RF73 | Exibir o ranking de jogadores com mais erros no campeonato | Planejado — AC3 |
 
 ### 4.7 Classificação
 
@@ -184,6 +187,8 @@ garante que todo gol do resultado tenha um autor identificado.
 | RF32 | Recalcular a tabela a cada resultado registrado ou alterado | Implementado |
 | RF33 | Desempatar por pontos, vitórias, saldo de gols e gols marcados | Implementado |
 | RF34 | Exibir o aproveitamento percentual de cada time | Implementado |
+| RF60 | Destacar faixas de classificação na tabela, como título, acesso e rebaixamento | Planejado — Final |
+| RF61 | Exibir na tabela a sequência de resultados recentes de cada time | Planejado — Final |
 
 ### 4.8 Rankings individuais
 
@@ -203,6 +208,9 @@ garante que todo gol do resultado tenha um autor identificado.
 | RF41 | Exibir a maior goleada do campeonato | Implementado |
 | RF42 | Exibir melhor ataque e melhor defesa | Implementado |
 | RF43 | Filtrar estatísticas por torneio, temporada e time | Planejado — AC3 |
+| RF56 | Filtrar estatísticas de jogadores por posição | Planejado — AC3 |
+| RF57 | Alternar a tela de estatísticas entre a visão geral da liga e um recorte específico | Planejado — AC3 |
+| RF58 | Ampliar o painel com indicadores de aproveitamento, sequências e desempenho como mandante e visitante | Planejado — AC3 |
 
 ### 4.10 Interface
 
@@ -224,6 +232,34 @@ garante que todo gol do resultado tenha um autor identificado.
 | RF52 | Definir quais times da liga disputam cada temporada | Planejado — AC2 |
 | RF53 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
 | RF54 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
+
+### 4.12 Formatos de competição
+
+Além do turno único por pontos corridos, o aplicativo deve comportar os formatos usados nas
+competições brasileiras e sul-americanas.
+
+| ID | Requisito | Status |
+|----|-----------|--------|
+| RF62 | Criar torneios em formato mata-mata, no modelo da Copa do Brasil | Planejado — Final |
+| RF63 | Gerar o chaveamento e avançar automaticamente o vencedor de cada confronto | Planejado — Final |
+| RF64 | Suportar confrontos de ida e volta, com placar agregado | Planejado — Final |
+| RF65 | Criar torneios com fase de grupos seguida de mata-mata, no modelo da Libertadores | Planejado — Final |
+
+### 4.13 Perfis de acesso
+
+| ID | Requisito | Status |
+|----|-----------|--------|
+| RF66 | Distinguir o perfil administrador, que gerencia a competição, do perfil visualizador | Planejado — AC3 |
+| RF67 | Compartilhar a competição por link para acompanhamento em modo somente leitura | Planejado — AC3 |
+| RF68 | Ocultar do visualizador toda ação de escrita, mantendo tabela, rodadas e rankings acessíveis | Planejado — AC3 |
+
+### 4.14 Compartilhamento
+
+| ID | Requisito | Status |
+|----|-----------|--------|
+| RF69 | Exportar a tabela de classificação como imagem | Planejado — Final |
+| RF70 | Exportar os confrontos e resultados de uma rodada como imagem | Planejado — Final |
+| RF71 | Compartilhar a imagem gerada pelos aplicativos instalados no dispositivo | Planejado — Final |
 
 ---
 
@@ -386,6 +422,10 @@ resultado.
 Apenas jogadores marcados como goleiro recebem defesas, e apenas eles aparecem no ranking de
 defesas.
 
+Ao lado dos gols e das defesas, cada jogador também acumula **erros** na partida — lances decisivos
+perdidos. O ranking correspondente segue a mesma lógica dos demais, ordenando do maior total para o
+menor.
+
 ---
 
 ## 8. Interface
@@ -427,6 +467,7 @@ Os testes cobrem a camada `domain`, onde estão as regras que sustentam o produt
 | `CalculateStandingsUseCaseTest` | Pontuação por vitória e empate, acúmulo de gols, partidas sem resultado, desempate por saldo, desempate por gols marcados, aproveitamento |
 | `CalculateRankingsUseCaseTest` | Soma de gols entre partidas, exclusão de partidas não encerradas, filtro de goleiros no ranking de defesas, desempate por número de jogos, vínculo com o time |
 | `GenerateRoundsUseCaseTest` | Número de rodadas com times pares e ímpares, folga por rodada, ausência de confrontos repetidos, calendários distintos entre sorteios, time jogando uma vez por rodada |
+| `DrawCheckTest` | Sorteio com 28 times gerando 27 rodadas de 14 jogos, cada time enfrentando todos os demais uma única vez, equilíbrio do mando de campo e rodízio da folga com número ímpar |
 
 ```bash
 ./gradlew testDebugUnitTest
@@ -440,8 +481,8 @@ Os testes cobrem a camada `domain`, onde estão as regras que sustentam o produt
 |:-------:|:----:|----------------------------|
 | **AC1** | 14/09 | Autenticação, criação de campeonato, cadastro e listagem de times |
 | **AC2** | 13/10 | Hierarquia Liga → Torneio → Temporada, com times e jogadores vinculados à liga |
-| **AC3** | 08/11 | Histórico consolidado e estatísticas filtráveis por torneio, temporada e time |
-| **Final** | 22/11 | Refinamento da interface e fechamento do produto |
+| **AC3** | 08/11 | Histórico consolidado, estatísticas filtráveis e perfil visualizador |
+| **Final** | 22/11 | Formatos mata-mata e fase de grupos, exportação de imagens e refinamento da interface |
 
 As funcionalidades de rodadas, partidas, resultados, classificação e rankings já estão implementadas
 e serão apresentadas junto das entregas em que forem evoluídas.
