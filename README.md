@@ -229,9 +229,17 @@ pasta — nenhuma alteração de código é necessária.
 | Entrega | Data | Funcionalidade apresentada |
 |:-------:|:----:|----------------------------|
 | **AC1** | 14/09 | Autenticação, criação de campeonato, cadastro e listagem de times |
-| **AC2** | 13/10 | Elenco, rodadas, partidas e registro de resultados |
+| **AC2** | 13/10 | Hierarquia Liga → Torneio → Temporada, com histórico acumulado de times e jogadores |
 | **AC3** | 08/11 | Classificação automática com critérios de desempate |
-| **Final** | 22/11 | Artilharia, ranking de defesas, estatísticas e refinamento da interface |
+| **Final** | 22/11 | Estatísticas com filtro por torneio, temporada e time, e refinamento da interface |
+
+### Próxima evolução da modelagem
+
+Hoje cada campeonato é independente: times e jogadores existem apenas dentro dele, então nada se
+acumula entre edições. A AC2 introduz três níveis — **Liga → Torneio → Temporada** (CBF →
+Brasileirão → 2026) — com times e jogadores pertencendo à liga. A temporada passa a guardar apenas
+quais times disputam, suas rodadas e sua classificação, o que permite somar o histórico de um
+jogador ou de um time ao longo de todas as temporadas.
 
 ## Equipe
 
