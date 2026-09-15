@@ -26,6 +26,7 @@ data class SeasonsUiState(
 class SeasonsViewModel(
     private val leagueId: String,
     private val tournamentId: String,
+    private val ownerId: String?,
     private val repository: SeasonRepository = FirebaseModule.seasonRepository,
     private val tournamentRepository: TournamentRepository = FirebaseModule.tournamentRepository,
     private val teamRepository: TeamRepository = FirebaseModule.teamRepository
@@ -40,7 +41,7 @@ class SeasonsViewModel(
             _uiState.value = _uiState.value.copy(tournament = tournament)
         }
         viewModelScope.launch {
-            repository.observeByTournament(tournamentId)
+            repository.observeByTournament(tournamentId, ownerId)
                 .catch { error -> _uiState.value = _uiState.value.copy(loading = false, error = error.message) }
                 .collect { list ->
                     _uiState.value = _uiState.value.copy(
@@ -50,7 +51,7 @@ class SeasonsViewModel(
                 }
         }
         viewModelScope.launch {
-            teamRepository.observeByLeague(leagueId)
+            teamRepository.observeByLeague(leagueId, ownerId)
                 .catch { error -> _uiState.value = _uiState.value.copy(error = error.message) }
                 .collect { teams -> _uiState.value = _uiState.value.copy(teams = teams.sortedBy { it.name }) }
         }

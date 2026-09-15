@@ -12,8 +12,8 @@ class TeamRepository(
 
     private val collection = firestore.collection("teams")
 
-    fun observeByLeague(leagueId: String): Flow<List<Team>> =
-        collection.whereEqualTo("leagueId", leagueId).snapshotsAsFlow()
+    fun observeByLeague(leagueId: String, ownerId: String?): Flow<List<Team>> =
+        collection.whereEqualTo("leagueId", leagueId).ownedBy(ownerId).snapshotsAsFlow()
 
     suspend fun create(team: Team): Result<String> = runCatching {
         collection.add(team.copy(ownerId = currentUserId(), createdAt = System.currentTimeMillis())).await().id

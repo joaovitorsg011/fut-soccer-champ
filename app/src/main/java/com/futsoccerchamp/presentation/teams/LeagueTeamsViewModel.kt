@@ -27,6 +27,7 @@ data class LeagueTeamsUiState(
 
 class LeagueTeamsViewModel(
     private val leagueId: String,
+    private val ownerId: String?,
     private val teamRepository: TeamRepository = FirebaseModule.teamRepository,
     private val playerRepository: PlayerRepository = FirebaseModule.playerRepository
 ) : ViewModel() {
@@ -36,12 +37,12 @@ class LeagueTeamsViewModel(
 
     init {
         viewModelScope.launch {
-            teamRepository.observeByLeague(leagueId)
+            teamRepository.observeByLeague(leagueId, ownerId)
                 .catch { error -> update { copy(loading = false, error = error.message) } }
                 .collect { teams -> update { copy(loading = false, teams = teams.sortedBy { it.name }) } }
         }
         viewModelScope.launch {
-            playerRepository.observeByLeague(leagueId)
+            playerRepository.observeByLeague(leagueId, ownerId)
                 .catch { error -> update { copy(error = error.message) } }
                 .collect { players ->
                     update { copy(players = players.sortedWith(compareBy({ it.number }, { it.name }))) }

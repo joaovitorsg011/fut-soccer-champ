@@ -12,8 +12,8 @@ class MatchRepository(
 
     private val collection = firestore.collection("matches")
 
-    fun observeBySeason(seasonId: String): Flow<List<Match>> =
-        collection.whereEqualTo("seasonId", seasonId).snapshotsAsFlow()
+    fun observeBySeason(seasonId: String, ownerId: String?): Flow<List<Match>> =
+        collection.whereEqualTo("seasonId", seasonId).ownedBy(ownerId).snapshotsAsFlow()
 
     fun observeByRound(roundId: String): Flow<List<Match>> =
         collection.whereEqualTo("roundId", roundId).snapshotsAsFlow()

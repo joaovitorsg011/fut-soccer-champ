@@ -65,6 +65,7 @@ data class SeasonUiState(
 class SeasonViewModel(
     private val leagueId: String,
     private val seasonId: String,
+    private val ownerId: String?,
     private val seasonRepository: SeasonRepository = FirebaseModule.seasonRepository,
     private val teamRepository: TeamRepository = FirebaseModule.teamRepository,
     private val playerRepository: PlayerRepository = FirebaseModule.playerRepository,
@@ -87,18 +88,18 @@ class SeasonViewModel(
             update { copy(loading = false, season = season) }
             applyParticipants()
         }
-        observe(teamRepository.observeByLeague(leagueId)) { teams ->
+        observe(teamRepository.observeByLeague(leagueId, ownerId)) { teams ->
             allTeams = teams.sortedBy { it.name }
             applyParticipants()
         }
-        observe(playerRepository.observeByLeague(leagueId)) { players ->
+        observe(playerRepository.observeByLeague(leagueId, ownerId)) { players ->
             allPlayers = players.sortedWith(compareBy({ it.number }, { it.name }))
             applyParticipants()
         }
-        observe(roundRepository.observeBySeason(seasonId)) { rounds ->
+        observe(roundRepository.observeBySeason(seasonId, ownerId)) { rounds ->
             update { copy(rounds = rounds.sortedBy { it.number }) }
         }
-        observe(matchRepository.observeBySeason(seasonId)) { matches ->
+        observe(matchRepository.observeBySeason(seasonId, ownerId)) { matches ->
             update { copy(matches = matches) }
             recalculate()
         }

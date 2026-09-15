@@ -12,8 +12,8 @@ class TournamentRepository(
 
     private val collection = firestore.collection("tournaments")
 
-    fun observeByLeague(leagueId: String): Flow<List<Tournament>> =
-        collection.whereEqualTo("leagueId", leagueId).snapshotsAsFlow()
+    fun observeByLeague(leagueId: String, ownerId: String?): Flow<List<Tournament>> =
+        collection.whereEqualTo("leagueId", leagueId).ownedBy(ownerId).snapshotsAsFlow()
 
     suspend fun get(id: String): Tournament? =
         collection.document(id).get().await().toObject(Tournament::class.java)

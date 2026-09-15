@@ -373,8 +373,18 @@ Liga  ──┬── Times ── Jogadores        permanentes
 
 ### 6.3 Regras de segurança
 
-Cada documento carrega o identificador do campeonato ao qual pertence. As regras verificam, a cada
-leitura e escrita, se o `ownerId` do campeonato correspondente é o usuário autenticado.
+Todo documento carrega o `ownerId` de quem o criou, inclusive os que já pertencem a uma liga ou
+temporada. As regras comparam esse campo diretamente com o usuário autenticado, sem precisar
+consultar o documento pai.
+
+Essa redundância é intencional. Regras do Firestore não filtram resultados: uma consulta só é
+aceita quando as regras conseguem garantir, pelo próprio formato da consulta, que todo documento
+retornado seria legível. Se a regra olha o `ownerId` do documento, a consulta precisa filtrar por
+`ownerId` também — e é o que o aplicativo faz em todas as listagens. Regras que precisavam buscar o
+documento pai tornavam isso impossível e derrubavam consultas inteiras.
+
+O perfil root é a exceção: como a permissão dele não depende de nenhum campo do documento, suas
+consultas dispensam o filtro.
 
 ---
 

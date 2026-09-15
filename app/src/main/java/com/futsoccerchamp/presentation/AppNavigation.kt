@@ -41,6 +41,7 @@ fun AppNavigation(
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val session by authViewModel.session.collectAsStateWithLifecycle()
+    val ownerFilter = if (session.isRoot) null else session.userId
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
@@ -102,7 +103,7 @@ fun AppNavigation(
             val leagueId = entry.arg("leagueId")
             val tournamentsViewModel: TournamentsViewModel = viewModel(
                 key = "tournaments-$leagueId",
-                factory = factory { TournamentsViewModel(leagueId) }
+                factory = factory { TournamentsViewModel(leagueId, ownerFilter) }
             )
             LeagueScreen(
                 viewModel = tournamentsViewModel,
@@ -124,7 +125,7 @@ fun AppNavigation(
             val leagueId = entry.arg("leagueId")
             val teamsViewModel: LeagueTeamsViewModel = viewModel(
                 key = "league-teams-$leagueId",
-                factory = factory { LeagueTeamsViewModel(leagueId) }
+                factory = factory { LeagueTeamsViewModel(leagueId, ownerFilter) }
             )
             LeagueTeamsScreen(
                 viewModel = teamsViewModel,
@@ -144,7 +145,7 @@ fun AppNavigation(
             val tournamentId = entry.arg("tournamentId")
             val seasonsViewModel: SeasonsViewModel = viewModel(
                 key = "seasons-$tournamentId",
-                factory = factory { SeasonsViewModel(leagueId, tournamentId) }
+                factory = factory { SeasonsViewModel(leagueId, tournamentId, ownerFilter) }
             )
             SeasonsScreen(
                 viewModel = seasonsViewModel,
@@ -165,7 +166,7 @@ fun AppNavigation(
             val seasonId = entry.arg("seasonId")
             val seasonViewModel: SeasonViewModel = viewModel(
                 key = "season-$seasonId",
-                factory = factory { SeasonViewModel(leagueId, seasonId) }
+                factory = factory { SeasonViewModel(leagueId, seasonId, ownerFilter) }
             )
             SeasonScreen(
                 viewModel = seasonViewModel,

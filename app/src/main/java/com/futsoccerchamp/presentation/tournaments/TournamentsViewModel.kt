@@ -22,6 +22,7 @@ data class TournamentsUiState(
 
 class TournamentsViewModel(
     private val leagueId: String,
+    private val ownerId: String?,
     private val repository: TournamentRepository = FirebaseModule.tournamentRepository,
     private val leagueRepository: LeagueRepository = FirebaseModule.leagueRepository
 ) : ViewModel() {
@@ -35,7 +36,7 @@ class TournamentsViewModel(
             _uiState.value = _uiState.value.copy(league = league)
         }
         viewModelScope.launch {
-            repository.observeByLeague(leagueId)
+            repository.observeByLeague(leagueId, ownerId)
                 .catch { error -> _uiState.value = _uiState.value.copy(loading = false, error = error.message) }
                 .collect { list ->
                     _uiState.value = _uiState.value.copy(

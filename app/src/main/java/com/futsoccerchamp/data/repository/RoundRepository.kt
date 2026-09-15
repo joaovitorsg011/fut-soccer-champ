@@ -12,8 +12,8 @@ class RoundRepository(
 
     private val collection = firestore.collection("rounds")
 
-    fun observeBySeason(seasonId: String): Flow<List<Round>> =
-        collection.whereEqualTo("seasonId", seasonId).snapshotsAsFlow()
+    fun observeBySeason(seasonId: String, ownerId: String?): Flow<List<Round>> =
+        collection.whereEqualTo("seasonId", seasonId).ownedBy(ownerId).snapshotsAsFlow()
 
     suspend fun create(round: Round): Result<String> = runCatching {
         collection.add(round.copy(ownerId = currentUserId())).await().id

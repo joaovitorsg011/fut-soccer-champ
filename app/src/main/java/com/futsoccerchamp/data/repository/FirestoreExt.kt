@@ -15,3 +15,6 @@ inline fun <reified T : Any> Query.snapshotsAsFlow(): Flow<List<T>> = callbackFl
     }
     awaitClose { registration.remove() }
 }
+
+fun Query.ownedBy(ownerId: String?): Query =
+    if (ownerId.isNullOrBlank()) this else whereEqualTo("ownerId", ownerId)
