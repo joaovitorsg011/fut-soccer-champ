@@ -15,6 +15,9 @@ class TournamentRepository(
     fun observeByLeague(leagueId: String, ownerId: String?): Flow<List<Tournament>> =
         collection.whereEqualTo("leagueId", leagueId).ownedBy(ownerId).snapshotsAsFlow()
 
+    fun observeById(id: String): Flow<Tournament?> =
+        collection.document(id).snapshotAsFlow()
+
     suspend fun get(id: String): Tournament? =
         collection.document(id).get().await().toObject(Tournament::class.java)
 

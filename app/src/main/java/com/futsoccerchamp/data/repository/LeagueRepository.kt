@@ -14,6 +14,9 @@ class LeagueRepository(private val firestore: FirebaseFirestore) {
 
     fun observeAll(): Flow<List<League>> = collection.snapshotsAsFlow()
 
+    fun observeById(id: String): Flow<League?> =
+        collection.document(id).snapshotAsFlow()
+
     suspend fun get(id: String): League? =
         collection.document(id).get().await().toObject(League::class.java)
 

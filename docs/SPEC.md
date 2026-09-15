@@ -247,6 +247,8 @@ soma das conversões, o que garante que todo gol do resultado tenha um autor ide
 | RF79 | Ocultar do perfil root todas as ações de escrita | Implementado |
 | RF80 | Levar o administrador direto para a sua liga, sem passar por uma lista | Implementado |
 | RF81 | Reservar a lista de ligas ao perfil root | Implementado |
+| RF91 | Refletir em tempo real, em qualquer aparelho, as alterações feitas na mesma conta | Implementado |
+| RF92 | Sair da tela automaticamente quando a liga, o torneio ou a temporada é excluída em outro aparelho | Implementado |
 | RF53 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
 | RF54 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
 
@@ -316,7 +318,7 @@ competições brasileiras e sul-americanas.
 | RNF04 | Autenticar os usuários | Firebase Authentication |
 | RNF05 | Impedir acesso a dados de outro organizador | Regras de segurança em `firestore.rules` |
 | RNF06 | Manter placar e classificação sempre coerentes | Classificação derivada, nunca persistida |
-| RNF07 | Refletir alterações sem recarregar a tela | Listeners em tempo real do Firestore expostos como `Flow` |
+| RNF07 | Refletir alterações sem recarregar a tela, inclusive entre aparelhos | Listeners em tempo real do Firestore expostos como `Flow`, aplicados também aos documentos de liga, torneio e temporada |
 | RNF08 | Operar dentro do plano gratuito do Firebase | Imagens comprimidas em Base64, sem Storage |
 | RNF09 | Permitir verificação automatizada das regras de negócio | Camada `domain` isolada e coberta por testes de unidade |
 | RNF10 | Código sem comentários, documentação centralizada | README e este documento |

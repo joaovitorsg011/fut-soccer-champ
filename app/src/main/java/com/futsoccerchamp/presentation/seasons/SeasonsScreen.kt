@@ -66,6 +66,10 @@ fun SeasonsScreen(
     var toEdit by remember { mutableStateOf<Season?>(null) }
     var toDelete by remember { mutableStateOf<Season?>(null) }
 
+    LaunchedEffect(state.removed) {
+        if (state.removed) onBack()
+    }
+
     LaunchedEffect(state.error) {
         state.error?.let {
             snackbarHostState.showSnackbar(it)

@@ -77,6 +77,10 @@ fun LeagueScreen(
     var toDelete by remember { mutableStateOf<Tournament?>(null) }
     var showEditLeague by remember { mutableStateOf(false) }
 
+    LaunchedEffect(state.removed) {
+        if (state.removed) onSwitchLeague()
+    }
+
     LaunchedEffect(state.error) {
         state.error?.let {
             snackbarHostState.showSnackbar(it)

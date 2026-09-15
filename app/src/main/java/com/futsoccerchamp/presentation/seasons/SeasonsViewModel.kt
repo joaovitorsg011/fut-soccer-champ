@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 data class SeasonsUiState(
     val loading: Boolean = true,
     val tournament: Tournament? = null,
+    val removed: Boolean = false,
     val seasons: List<Season> = emptyList(),
     val teams: List<Team> = emptyList(),
     val error: String? = null
@@ -37,8 +38,14 @@ class SeasonsViewModel(
 
     init {
         viewModelScope.launch {
-            val tournament = runCatching { tournamentRepository.get(tournamentId) }.getOrNull()
-            _uiState.value = _uiState.value.copy(tournament = tournament)
+            tournamentRepository.observeById(tournamentId)
+                .catch { error -> _uiState.value = _uiState.value.copy(error = error.message) }
+                .collect { tournament ->
+                    _uiState.value = _uiState.value.copy(
+                        tournament = tournament,
+                        removed = tournament == null
+                    )
+                }
         }
         viewModelScope.launch {
             repository.observeByTournament(tournamentId, ownerId)

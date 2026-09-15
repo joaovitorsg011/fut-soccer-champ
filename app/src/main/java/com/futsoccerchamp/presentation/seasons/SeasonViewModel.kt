@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 data class SeasonUiState(
     val loading: Boolean = true,
     val season: Season? = null,
+    val removed: Boolean = false,
     val leagueTeams: List<Team> = emptyList(),
     val teams: List<Team> = emptyList(),
     val players: List<Player> = emptyList(),
@@ -83,9 +84,8 @@ class SeasonViewModel(
     private var allPlayers: List<Player> = emptyList()
 
     init {
-        viewModelScope.launch {
-            val season = runCatching { seasonRepository.get(seasonId) }.getOrNull()
-            update { copy(loading = false, season = season) }
+        observe(seasonRepository.observeById(seasonId)) { season ->
+            update { copy(loading = false, season = season, removed = season == null) }
             applyParticipants()
         }
         observe(teamRepository.observeByLeague(leagueId, ownerId)) { teams ->

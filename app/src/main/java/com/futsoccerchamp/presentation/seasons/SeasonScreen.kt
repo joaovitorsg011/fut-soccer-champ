@@ -110,6 +110,10 @@ fun SeasonScreen(
         return
     }
 
+    LaunchedEffect(state.removed) {
+        if (state.removed) onBack()
+    }
+
     LaunchedEffect(state.error) {
         state.error?.let {
             snackbarHostState.showSnackbar(it)
