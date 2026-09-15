@@ -63,6 +63,7 @@ fun LeagueScreen(
     onThemeModeChange: (ThemeMode) -> Unit,
     onOpenTournament: (String) -> Unit,
     onOpenTeams: () -> Unit,
+    showSwitchLeague: Boolean,
     onSwitchLeague: () -> Unit,
     onSignOut: () -> Unit
 ) {
@@ -137,16 +138,18 @@ fun LeagueScreen(
                     onClick = { onThemeModeChange(themeMode.toggled()) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Shield, contentDescription = null) },
-                    label = { Text(if (readOnly) "Todas as ligas" else "Minhas ligas") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onSwitchLeague()
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
+                if (showSwitchLeague) {
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Shield, contentDescription = null) },
+                        label = { Text("Todas as ligas") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            onSwitchLeague()
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
                 NavigationDrawerItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
                     label = { Text("Sair da conta") },

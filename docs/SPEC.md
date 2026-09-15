@@ -245,6 +245,8 @@ soma das conversões, o que garante que todo gol do resultado tenha um autor ide
 | RF77 | Criar conta e liga no mesmo cadastro, tornando o autor administrador da liga | Implementado |
 | RF78 | Reconhecer o perfil root, que enxerga todas as ligas sem poder alterá-las | Implementado |
 | RF79 | Ocultar do perfil root todas as ações de escrita | Implementado |
+| RF80 | Levar o administrador direto para a sua liga, sem passar por uma lista | Implementado |
+| RF81 | Reservar a lista de ligas ao perfil root | Implementado |
 | RF53 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
 | RF54 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
 
@@ -453,10 +455,15 @@ a ele. A posição cadastrada serve apenas como sugestão inicial.
 ```
 Splash
   └── Login ou cadastro com liga
-        └── Minhas ligas
-              └── Liga ──► Times da liga ──► Elenco
-                    └── Torneio
-                          └── Temporada  (menu lateral)
+        └── Liga  (menu lateral)        administrador entra direto na sua liga
+              ├── Torneios
+              │     └── Temporada  (menu lateral)
+              ├── Times e elencos ──► Elenco do time
+              └── Dados da liga
+
+Root                                    perfil de observação
+  └── Todas as ligas
+        └── as mesmas telas, sem qualquer ação de escrita
                     ├── Classificação          tela inicial
                     ├── Times ──► Elenco do time
                     ├── Rodadas e partidas

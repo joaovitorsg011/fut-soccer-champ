@@ -74,9 +74,19 @@ fun AppNavigation(
                     key = "leagues-$userId-${session.isRoot}",
                     factory = factory { LeaguesViewModel(userId, session.isRoot) }
                 )
+                val leaguesState by leaguesViewModel.uiState.collectAsStateWithLifecycle()
+                val ownLeagueId = leaguesState.leagues.firstOrNull()?.id
+
+                LaunchedEffect(ownLeagueId, session.isRoot) {
+                    if (!session.isRoot && ownLeagueId != null) {
+                        navController.replaceWith(Routes.league(ownLeagueId))
+                    }
+                }
+
                 LeaguesScreen(
                     viewModel = leaguesViewModel,
                     readOnly = session.isRoot,
+                    showList = session.isRoot || ownLeagueId == null,
                     themeMode = themeMode,
                     onThemeModeChange = onThemeModeChange,
                     onOpenLeague = { navController.navigate(Routes.league(it)) },
@@ -101,6 +111,7 @@ fun AppNavigation(
                 onThemeModeChange = onThemeModeChange,
                 onOpenTournament = { navController.navigate(Routes.tournament(leagueId, it)) },
                 onOpenTeams = { navController.navigate(Routes.leagueTeams(leagueId)) },
+                showSwitchLeague = session.isRoot,
                 onSwitchLeague = { navController.replaceWith(Routes.LEAGUES) },
                 onSignOut = { authViewModel.signOut() }
             )

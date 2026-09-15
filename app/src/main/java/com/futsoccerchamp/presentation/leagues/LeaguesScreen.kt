@@ -45,6 +45,7 @@ import com.futsoccerchamp.presentation.theme.ThemeMode
 fun LeaguesScreen(
     viewModel: LeaguesViewModel,
     readOnly: Boolean,
+    showList: Boolean,
     themeMode: ThemeMode,
     onThemeModeChange: (ThemeMode) -> Unit,
     onOpenLeague: (String) -> Unit,
@@ -90,7 +91,7 @@ fun LeaguesScreen(
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
             when {
-                state.loading -> LoadingBox()
+                state.loading || !showList -> LoadingBox()
                 state.leagues.isEmpty() -> EmptyState(
                     title = if (readOnly) "Nenhuma liga cadastrada" else "Você ainda não tem liga",
                     subtitle = if (readOnly) {
