@@ -79,8 +79,8 @@ fun MatchResultDialog(
             ?: players.firstOrNull { it.isGoalkeeper }?.id
             ?: players.firstOrNull()?.id).orEmpty()
 
-    var homeKeeperId by remember { mutableStateOf(defaultKeeper(homePlayers)) }
-    var awayKeeperId by remember { mutableStateOf(defaultKeeper(awayPlayers)) }
+    var homeKeeperId by remember(homePlayers) { mutableStateOf(defaultKeeper(homePlayers)) }
+    var awayKeeperId by remember(awayPlayers) { mutableStateOf(defaultKeeper(awayPlayers)) }
 
     var selectedTeamId by remember { mutableStateOf(match.homeTeamId) }
 
@@ -377,7 +377,7 @@ private fun KeeperSection(
 
         if (keepers.isEmpty()) {
             Text(
-                "Este time ainda não tem jogadores cadastrados.",
+                "Este time não tem jogadores nesta temporada. Cadastre o elenco em Times para registrar as cobranças.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error
             )

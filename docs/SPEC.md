@@ -250,7 +250,33 @@ soma das conversões, o que garante que todo gol do resultado tenha um autor ide
 | RF53 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
 | RF54 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
 
-### 4.12 Formatos de competição
+### 4.12 Visão consolidada da liga
+
+O menu da liga passa a ter suas próprias telas de acompanhamento, somando tudo o que aconteceu em
+todos os torneios e temporadas dela. É a camada que dá sentido à hierarquia: sem ela, cada temporada
+continuaria sendo uma ilha.
+
+Todas essas telas compartilham o mesmo seletor de recorte:
+
+```
+Geral          soma todas as temporadas de todos os torneios da liga
+Por torneio    soma as temporadas de um torneio
+Por temporada  o recorte que já existe hoje dentro da temporada
+```
+
+| ID | Requisito | Status |
+|----|-----------|--------|
+| RF82 | Exibir estatísticas da liga somando todos os torneios e temporadas | Planejado — AC3 |
+| RF83 | Filtrar as estatísticas da liga por torneio e por temporada | Planejado — AC3 |
+| RF84 | Exibir a artilharia geral da liga, somando todas as temporadas | Planejado — AC3 |
+| RF85 | Filtrar a artilharia da liga por torneio e por temporada | Planejado — AC3 |
+| RF86 | Exibir os rankings de defesas e de erros da liga com os mesmos recortes | Planejado — AC3 |
+| RF87 | Listar os times da liga com o desempenho acumulado em todas as temporadas | Planejado — AC3 |
+| RF88 | Abrir um time e ver seu histórico por torneio e por temporada | Planejado — AC3 |
+| RF89 | Exibir no perfil do time o elenco com números acumulados de cada jogador | Planejado — AC3 |
+| RF90 | Abrir um jogador e ver gols, defesas e erros por temporada | Planejado — AC3 |
+
+### 4.13 Formatos de competição
 
 Além do turno único por pontos corridos, o aplicativo deve comportar os formatos usados nas
 competições brasileiras e sul-americanas.
@@ -262,7 +288,7 @@ competições brasileiras e sul-americanas.
 | RF64 | Suportar confrontos de ida e volta, com placar agregado | Planejado — Final |
 | RF65 | Criar torneios com fase de grupos seguida de mata-mata, no modelo da Libertadores | Planejado — Final |
 
-### 4.13 Perfis de acesso
+### 4.14 Perfis de acesso
 
 | ID | Requisito | Status |
 |----|-----------|--------|
@@ -270,7 +296,7 @@ competições brasileiras e sul-americanas.
 | RF67 | Compartilhar a competição por link para acompanhamento em modo somente leitura | Planejado — AC3 |
 | RF68 | Ocultar do visualizador toda ação de escrita, mantendo tabela, rodadas e rankings acessíveis | Planejado — AC3 |
 
-### 4.14 Compartilhamento
+### 4.15 Compartilhamento
 
 | ID | Requisito | Status |
 |----|-----------|--------|
@@ -458,7 +484,10 @@ Splash
         └── Liga  (menu lateral)        administrador entra direto na sua liga
               ├── Torneios
               │     └── Temporada  (menu lateral)
-              ├── Times e elencos ──► Elenco do time
+              │           Classificação · Rodadas · Artilharia · Times · Estatísticas
+              ├── Times e elencos ──► Time ──► Elenco
+              ├── Estatísticas da liga        planejado
+              ├── Artilharia da liga          planejado
               └── Dados da liga
 
 Root                                    perfil de observação
