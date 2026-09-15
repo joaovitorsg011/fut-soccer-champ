@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -78,7 +79,7 @@ private fun StandingsHeader(scrollState: androidx.compose.foundation.ScrollState
             Text(
                 "Time",
                 style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).padding(end = 8.dp)
             )
             Row(
                 modifier = Modifier.horizontalScroll(scrollState),
@@ -125,12 +126,19 @@ private fun StandingsRow(
             textAlign = TextAlign.Center,
             modifier = Modifier.width(32.dp)
         )
-        Column(Modifier.weight(1f)) {
-            Text(standing.teamName, style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+        Column(Modifier.weight(1f).padding(end = 8.dp)) {
+            Text(
+                standing.teamName,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             Text(
                 "${standing.efficiency}% de aproveitamento",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
         Row(

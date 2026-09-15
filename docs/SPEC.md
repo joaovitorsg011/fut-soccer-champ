@@ -467,10 +467,14 @@ Splash
 
 ### 8.2 Identidade visual
 
+A identidade parte do escudo do Fut Soccer Brasil: azul-marinho profundo com detalhes dourados.
+
 | Elemento | Definição |
 |----------|-----------|
-| Cor primária | Verde `#0B6B3A` |
-| Fundo de splash e login | Gradiente verde com círculos sutis |
+| Azul primário | `#1B3F9B`, com `#0E2559` e `#050F2B` nos fundos escuros |
+| Dourado secundário | `#E0A82E`, com `#FFCB45` claro e `#A5761A` escuro |
+| Marca | Escudo FSB, usado no ícone do aplicativo, na splash e no login |
+| Fundo de splash e login | Gradiente azul com círculos dourados sutis |
 | Tipografia | Material 3 padrão, títulos em peso alto |
 | Formulários | Cantos de 16 dp, ícone à esquerda, container tonal |
 | Cartão de partida | Escudos nas extremidades, placar em destaque ao centro, sem botões auxiliares |

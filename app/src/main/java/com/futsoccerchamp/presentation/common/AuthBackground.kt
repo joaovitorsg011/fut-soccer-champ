@@ -28,8 +28,8 @@ fun AuthBackground(content: @Composable BoxScope.() -> Unit) {
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            Color.Black.copy(alpha = 0.35f),
-                            Color.Black.copy(alpha = 0.75f)
+                            Color.Black.copy(alpha = 0.10f),
+                            Color.Black.copy(alpha = 0.45f)
                         )
                     )
                 )

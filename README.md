@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/logo-original.jpeg" width="180" alt="Fut Soccer Brasil" />
+
 # Fut Soccer Brasil
 
 **Aplicativo Android para criação e gerenciamento de campeonatos de futebol.**
