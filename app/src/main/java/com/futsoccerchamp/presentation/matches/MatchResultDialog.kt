@@ -48,6 +48,8 @@ import com.futsoccerchamp.presentation.teams.TeamBadge
 
 private enum class Attempt { NONE, SCORED, MISSED }
 
+private const val PENALTIES_PER_TEAM = 5
+
 @Composable
 fun MatchResultDialog(
     match: Match,
@@ -92,6 +94,8 @@ fun MatchResultDialog(
     val awayGoals = count(awayShooters, Attempt.SCORED)
     val homeMisses = count(homeShooters, Attempt.MISSED)
     val awayMisses = count(awayShooters, Attempt.MISSED)
+    val homeTaken = homeGoals + homeMisses
+    val awayTaken = awayGoals + awayMisses
 
     val showingHome = selectedTeamId == match.homeTeamId
     val shooters = if (showingHome) homeShooters else awayShooters
@@ -99,6 +103,8 @@ fun MatchResultDialog(
     val keeperId = if (showingHome) homeKeeperId else awayKeeperId
     val savesForKeeper = if (showingHome) awayMisses else homeMisses
     val selectedTeam = if (showingHome) homeTeam else awayTeam
+    val taken = if (showingHome) homeTaken else awayTaken
+    val remaining = PENALTIES_PER_TEAM - taken
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -119,11 +125,26 @@ fun MatchResultDialog(
 
                 HorizontalDivider()
 
-                Text(
-                    selectedTeam?.name.orEmpty(),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        selectedTeam?.name.orEmpty(),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        if (remaining > 0) {
+                            "$taken de $PENALTIES_PER_TEAM cobranças registradas"
+                        } else {
+                            "Série encerrada: $PENALTIES_PER_TEAM cobranças registradas"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (remaining > 0) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
+                    )
+                }
 
                 if (shooters.isEmpty()) {
                     Text(
@@ -133,9 +154,11 @@ fun MatchResultDialog(
                     )
                 } else {
                     shooters.forEach { player ->
+                        val attempt = attempts[player.id] ?: Attempt.NONE
                         ShooterRow(
                             player = player,
-                            attempt = attempts[player.id] ?: Attempt.NONE,
+                            attempt = attempt,
+                            enabled = attempt != Attempt.NONE || remaining > 0,
                             onChange = { attempts[player.id] = it }
                         )
                     }
@@ -252,7 +275,12 @@ private fun SelectableTeam(
 }
 
 @Composable
-private fun ShooterRow(player: Player, attempt: Attempt, onChange: (Attempt) -> Unit) {
+private fun ShooterRow(
+    player: Player,
+    attempt: Attempt,
+    enabled: Boolean,
+    onChange: (Attempt) -> Unit
+) {
     val background = when (attempt) {
         Attempt.SCORED -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
         Attempt.MISSED -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
@@ -273,10 +301,11 @@ private fun ShooterRow(player: Player, attempt: Attempt, onChange: (Attempt) -> 
             Column(Modifier.weight(1f).padding(start = 10.dp)) {
                 Text(player.name, style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    when (attempt) {
-                        Attempt.SCORED -> "Converteu"
-                        Attempt.MISSED -> "Perdeu"
-                        Attempt.NONE -> "Não cobrou"
+                    when {
+                        attempt == Attempt.SCORED -> "Converteu"
+                        attempt == Attempt.MISSED -> "Perdeu"
+                        !enabled -> "Fora da série"
+                        else -> "Não cobrou"
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -287,6 +316,7 @@ private fun ShooterRow(player: Player, attempt: Attempt, onChange: (Attempt) -> 
                 icon = Icons.Default.Check,
                 description = "Converteu",
                 selected = attempt == Attempt.SCORED,
+                enabled = enabled,
                 color = MaterialTheme.colorScheme.primary,
                 onClick = { onChange(if (attempt == Attempt.SCORED) Attempt.NONE else Attempt.SCORED) }
             )
@@ -294,6 +324,7 @@ private fun ShooterRow(player: Player, attempt: Attempt, onChange: (Attempt) -> 
                 icon = Icons.Default.Close,
                 description = "Perdeu",
                 selected = attempt == Attempt.MISSED,
+                enabled = enabled,
                 color = MaterialTheme.colorScheme.error,
                 onClick = { onChange(if (attempt == Attempt.MISSED) Attempt.NONE else Attempt.MISSED) }
             )
@@ -306,21 +337,26 @@ private fun AttemptButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     description: String,
     selected: Boolean,
+    enabled: Boolean,
     color: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit
 ) {
+    val tint = when {
+        selected -> MaterialTheme.colorScheme.onPrimary
+        enabled -> color
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+    }
+
     Surface(
         shape = CircleShape,
         color = if (selected) color else MaterialTheme.colorScheme.surface,
-        modifier = Modifier.padding(start = 6.dp).size(36.dp).clickable(onClick = onClick)
+        modifier = Modifier
+            .padding(start = 6.dp)
+            .size(36.dp)
+            .clickable(enabled = enabled, onClick = onClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Icon(
-                icon,
-                contentDescription = description,
-                tint = if (selected) MaterialTheme.colorScheme.onPrimary else color,
-                modifier = Modifier.size(18.dp)
-            )
+            Icon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(18.dp))
         }
     }
 }

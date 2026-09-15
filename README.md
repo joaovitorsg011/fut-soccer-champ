@@ -20,8 +20,8 @@
 Organizar um campeonato amador costuma terminar em planilhas espalhadas e tabelas de classificação
 calculadas na mão, onde um placar corrigido raramente chega até a pontuação final.
 
-As partidas aqui são disputas de pênaltis: cada jogador escalado cobra uma vez, o placar é o número
-de conversões, e toda cobrança perdida vira erro para o cobrador e defesa para quem estava no gol.
+As partidas aqui são disputas de pênaltis: cinco cobranças por time, o placar é o número de
+conversões, e toda cobrança perdida vira erro para o cobrador e defesa para quem estava no gol.
 
 O **Fut Soccer Brasil** centraliza esse fluxo em um único aplicativo: o organizador cria o campeonato,
 cadastra os times, monta as rodadas, registra os resultados — e a tabela de classificação se atualiza
@@ -39,7 +39,7 @@ Projeto desenvolvido para a disciplina de **Projeto de Software**.
 | **Elenco** | Jogadores por time, com número da camisa e posição |
 | **Rodadas** | Sorteio automático da tabela (round-robin) ou montagem manual |
 | **Partidas** | Confrontos com data, horário e local; registro e correção de placares |
-| **Súmula** | Disputa de pênaltis: cada cobrança convertida ou perdida, com defesas creditadas a quem foi ao gol |
+| **Súmula** | Série de cinco cobranças por time, com defesas creditadas a quem foi ao gol |
 | **Classificação** | Tabela recalculada a cada resultado, com critérios de desempate |
 | **Rankings** | Artilharia, defesas e cobranças perdidas |
 | **Estatísticas** | Gols, média por partida, maior goleada, melhor ataque e melhor defesa |
@@ -257,7 +257,7 @@ jogador ou de um time ao longo de todas as temporadas.
 | Board do projeto | [GitHub Projects](https://github.com/users/joaovitorsg011/projects/1) |
 | Tarefas por entrega | [Milestones](https://github.com/joaovitorsg011/fut-soccer-champ/milestones) |
 
-A especificação reúne os 74 requisitos funcionais, os requisitos não funcionais, as decisões de
+A especificação reúne os 76 requisitos funcionais, os requisitos não funcionais, as decisões de
 arquitetura, o modelo de dados e as regras de negócio. O board organiza as mesmas funcionalidades
 como tarefas agrupadas por entrega.
 

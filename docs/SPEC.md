@@ -24,9 +24,9 @@ Um aplicativo Android que centraliza a organização do campeonato — times, el
 e resultados — e deriva automaticamente a classificação e os rankings individuais a partir das
 partidas registradas.
 
-As partidas são **disputas de pênaltis**: em cada confronto, os jogadores escalados cobram uma vez
-cada, e o placar é o número de cobranças convertidas. Uma cobrança perdida conta como erro para o
-cobrador e como defesa para quem estava no gol adversário.
+As partidas são **disputas de pênaltis**: cada time tem cinco cobranças por confronto, distribuídas
+entre os jogadores escalados, e o placar é o número de cobranças convertidas. Uma cobrança perdida
+conta como erro para o cobrador e como defesa para quem estava no gol adversário.
 
 ### 1.3 Objetivos
 
@@ -182,6 +182,8 @@ soma das conversões, o que garante que todo gol do resultado tenha um autor ide
 | RF72 | Registrar os erros de cada jogador a partir das cobranças perdidas | Implementado |
 | RF73 | Exibir o ranking de jogadores com mais erros no campeonato | Implementado |
 | RF74 | Creditar ao defensor uma defesa para cada cobrança perdida pelo adversário | Implementado |
+| RF75 | Limitar a série a cinco cobranças por time em cada partida | Implementado |
+| RF76 | Bloquear novos lançamentos assim que o time completar as cinco cobranças | Implementado |
 
 ### 4.7 Classificação
 
@@ -420,8 +422,8 @@ classificação.
 
 ### 7.6 Disputa de pênaltis
 
-Cada partida é uma disputa de pênaltis. Os jogadores escalados cobram uma vez cada, e toda cobrança
-termina em um de dois estados:
+Cada partida é uma disputa de pênaltis de **cinco cobranças por time**. Os jogadores escalados
+cobram uma vez cada, e toda cobrança termina em um de dois estados:
 
 ```
 Convertida  →  +1 gol para o cobrador  →  +1 no placar do time
@@ -429,6 +431,11 @@ Perdida     →  +1 erro para o cobrador →  +1 defesa para quem defendeu do ou
 ```
 
 Jogadores não escalados simplesmente não cobram naquela partida e não acumulam nada.
+
+A série fecha sozinha: ao somar cinco lançamentos — convertidos e perdidos juntos — os controles dos
+demais jogadores daquele time são desativados. Quatro conversões e um erro encerram a série tanto
+quanto cinco conversões. Para corrigir, basta desmarcar uma cobrança já registrada, o que devolve a
+vaga na série.
 
 O placar de cada time é, portanto, o número de conversões do seu elenco. Não existe placar digitado
 manualmente: todo gol tem autor conhecido, e artilharia, erros e defesas nunca divergem do
