@@ -5,7 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-class MatchRepository(private val firestore: FirebaseFirestore) {
+class MatchRepository(
+    private val firestore: FirebaseFirestore,
+    private val currentUserId: () -> String
+) {
 
     private val collection = firestore.collection("matches")
 
@@ -16,7 +19,7 @@ class MatchRepository(private val firestore: FirebaseFirestore) {
         collection.whereEqualTo("roundId", roundId).snapshotsAsFlow()
 
     suspend fun create(match: Match): Result<String> = runCatching {
-        collection.add(match).await().id
+        collection.add(match.copy(ownerId = currentUserId())).await().id
     }
 
     suspend fun update(match: Match): Result<Unit> = runCatching {

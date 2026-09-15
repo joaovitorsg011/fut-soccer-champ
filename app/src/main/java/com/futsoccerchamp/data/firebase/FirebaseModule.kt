@@ -21,10 +21,10 @@ object FirebaseModule {
 
     val authRepository: AuthRepository by lazy { AuthRepository(auth, firestore) }
     val leagueRepository: LeagueRepository by lazy { LeagueRepository(firestore) }
-    val tournamentRepository: TournamentRepository by lazy { TournamentRepository(firestore) }
-    val seasonRepository: SeasonRepository by lazy { SeasonRepository(firestore) }
-    val teamRepository: TeamRepository by lazy { TeamRepository(firestore) }
-    val roundRepository: RoundRepository by lazy { RoundRepository(firestore) }
-    val matchRepository: MatchRepository by lazy { MatchRepository(firestore) }
-    val playerRepository: PlayerRepository by lazy { PlayerRepository(firestore) }
+    val tournamentRepository: TournamentRepository by lazy { TournamentRepository(firestore) { auth.currentUser?.uid.orEmpty() } }
+    val seasonRepository: SeasonRepository by lazy { SeasonRepository(firestore) { auth.currentUser?.uid.orEmpty() } }
+    val teamRepository: TeamRepository by lazy { TeamRepository(firestore) { auth.currentUser?.uid.orEmpty() } }
+    val roundRepository: RoundRepository by lazy { RoundRepository(firestore) { auth.currentUser?.uid.orEmpty() } }
+    val matchRepository: MatchRepository by lazy { MatchRepository(firestore) { auth.currentUser?.uid.orEmpty() } }
+    val playerRepository: PlayerRepository by lazy { PlayerRepository(firestore) { auth.currentUser?.uid.orEmpty() } }
 }

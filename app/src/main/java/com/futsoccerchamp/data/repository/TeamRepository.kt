@@ -5,7 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-class TeamRepository(private val firestore: FirebaseFirestore) {
+class TeamRepository(
+    private val firestore: FirebaseFirestore,
+    private val currentUserId: () -> String
+) {
 
     private val collection = firestore.collection("teams")
 
@@ -13,7 +16,7 @@ class TeamRepository(private val firestore: FirebaseFirestore) {
         collection.whereEqualTo("leagueId", leagueId).snapshotsAsFlow()
 
     suspend fun create(team: Team): Result<String> = runCatching {
-        collection.add(team.copy(createdAt = System.currentTimeMillis())).await().id
+        collection.add(team.copy(ownerId = currentUserId(), createdAt = System.currentTimeMillis())).await().id
     }
 
     suspend fun update(team: Team): Result<Unit> = runCatching {

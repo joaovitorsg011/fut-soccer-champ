@@ -5,6 +5,7 @@ import com.google.firebase.firestore.DocumentId
 data class Match(
     @DocumentId val id: String = "",
     val seasonId: String = "",
+    val ownerId: String = "",
     val roundId: String = "",
     val homeTeamId: String = "",
     val awayTeamId: String = "",

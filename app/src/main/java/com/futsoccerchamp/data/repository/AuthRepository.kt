@@ -33,7 +33,7 @@ class AuthRepository(
         email: String,
         password: String,
         leagueName: String
-    ): Result<Unit> = runCatching {
+    ): Result<String> = runCatching {
         val result = auth.createUserWithEmailAndPassword(email.trim(), password).await()
         val uid = result.user?.uid ?: error("Usuário não criado")
 
@@ -57,7 +57,7 @@ class AuthRepository(
                 )
             )
             .await()
-        Unit
+            .id
     }
 
     suspend fun signIn(email: String, password: String): Result<Unit> = runCatching {

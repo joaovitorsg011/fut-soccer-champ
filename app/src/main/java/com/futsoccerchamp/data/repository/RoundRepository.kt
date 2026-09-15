@@ -5,7 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-class RoundRepository(private val firestore: FirebaseFirestore) {
+class RoundRepository(
+    private val firestore: FirebaseFirestore,
+    private val currentUserId: () -> String
+) {
 
     private val collection = firestore.collection("rounds")
 
@@ -13,7 +16,7 @@ class RoundRepository(private val firestore: FirebaseFirestore) {
         collection.whereEqualTo("seasonId", seasonId).snapshotsAsFlow()
 
     suspend fun create(round: Round): Result<String> = runCatching {
-        collection.add(round).await().id
+        collection.add(round.copy(ownerId = currentUserId())).await().id
     }
 
     suspend fun delete(round: Round): Result<Unit> = runCatching {

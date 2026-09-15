@@ -5,7 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-class SeasonRepository(private val firestore: FirebaseFirestore) {
+class SeasonRepository(
+    private val firestore: FirebaseFirestore,
+    private val currentUserId: () -> String
+) {
 
     private val collection = firestore.collection("seasons")
 
@@ -16,7 +19,7 @@ class SeasonRepository(private val firestore: FirebaseFirestore) {
         collection.document(id).get().await().toObject(Season::class.java)
 
     suspend fun create(season: Season): Result<String> = runCatching {
-        collection.add(season.copy(createdAt = System.currentTimeMillis())).await().id
+        collection.add(season.copy(ownerId = currentUserId(), createdAt = System.currentTimeMillis())).await().id
     }
 
     suspend fun update(season: Season): Result<Unit> = runCatching {

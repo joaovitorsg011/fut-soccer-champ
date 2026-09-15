@@ -33,6 +33,9 @@ class AuthViewModel(
     private val _session = MutableStateFlow(SessionState())
     val session: StateFlow<SessionState> = _session.asStateFlow()
 
+    private val _createdLeagueId = MutableStateFlow<String?>(null)
+    val createdLeagueId: StateFlow<String?> = _createdLeagueId.asStateFlow()
+
     init {
         viewModelScope.launch {
             repository.authState().collect { user ->
@@ -64,7 +67,19 @@ class AuthViewModel(
             _uiState.value = AuthUiState(error = validation)
             return
         }
-        run { repository.signUp(name, email, password, leagueName) }
+        _uiState.value = AuthUiState(loading = true)
+        viewModelScope.launch {
+            val result = repository.signUp(name, email, password, leagueName)
+            _uiState.value = AuthUiState(
+                loading = false,
+                error = result.exceptionOrNull()?.let { translate(it) }
+            )
+            result.getOrNull()?.let { _createdLeagueId.value = it }
+        }
+    }
+
+    fun consumeCreatedLeague() {
+        _createdLeagueId.value = null
     }
 
     fun signOut() = repository.signOut()

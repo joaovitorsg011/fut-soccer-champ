@@ -30,7 +30,7 @@ import com.futsoccerchamp.presentation.splash.SplashScreen
 import com.futsoccerchamp.presentation.teams.LeagueTeamsScreen
 import com.futsoccerchamp.presentation.teams.LeagueTeamsViewModel
 import com.futsoccerchamp.presentation.theme.ThemeMode
-import com.futsoccerchamp.presentation.tournaments.TournamentsScreen
+import com.futsoccerchamp.presentation.tournaments.LeagueScreen
 import com.futsoccerchamp.presentation.tournaments.TournamentsViewModel
 
 @Composable
@@ -94,12 +94,15 @@ fun AppNavigation(
                 key = "tournaments-$leagueId",
                 factory = factory { TournamentsViewModel(leagueId) }
             )
-            TournamentsScreen(
+            LeagueScreen(
                 viewModel = tournamentsViewModel,
                 readOnly = session.isRoot,
+                themeMode = themeMode,
+                onThemeModeChange = onThemeModeChange,
                 onOpenTournament = { navController.navigate(Routes.tournament(leagueId, it)) },
                 onOpenTeams = { navController.navigate(Routes.leagueTeams(leagueId)) },
-                onBack = { navController.popBackStack() }
+                onSwitchLeague = { navController.replaceWith(Routes.LEAGUES) },
+                onSignOut = { authViewModel.signOut() }
             )
         }
 
@@ -168,6 +171,15 @@ fun AppNavigation(
             navController.replaceWith(
                 if (session.userId == null) Routes.LOGIN else Routes.LEAGUES
             )
+        }
+    }
+
+    val createdLeagueId by authViewModel.createdLeagueId.collectAsStateWithLifecycle()
+    LaunchedEffect(createdLeagueId, session.userId) {
+        val leagueId = createdLeagueId
+        if (leagueId != null && session.userId != null) {
+            authViewModel.consumeCreatedLeague()
+            navController.replaceWith(Routes.league(leagueId))
         }
     }
 }

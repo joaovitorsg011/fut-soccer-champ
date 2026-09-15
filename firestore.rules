@@ -13,64 +13,30 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ROOT';
     }
 
-    function ownsLeague(leagueId) {
-      return signedIn()
-        && get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
+    function owns() {
+      return signedIn() && resource.data.ownerId == request.auth.uid;
     }
 
-    function ownsSeason(seasonId) {
-      return signedIn()
-        && ownsLeague(get(/databases/$(database)/documents/seasons/$(seasonId)).data.leagueId);
+    function becomingOwner() {
+      return signedIn() && request.resource.data.ownerId == request.auth.uid;
     }
 
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || isRoot());
       allow create: if signedIn() && request.auth.uid == userId
         && request.resource.data.role == 'ADMIN';
-      allow update, delete: if signedIn() && request.auth.uid == userId
+      allow update: if signedIn() && request.auth.uid == userId
         && request.resource.data.role == resource.data.role;
+      allow delete: if signedIn() && request.auth.uid == userId;
     }
 
-    match /leagues/{leagueId} {
-      allow read: if isRoot() || (signedIn() && resource.data.ownerId == request.auth.uid);
-      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if signedIn() && resource.data.ownerId == request.auth.uid;
-    }
-
-    match /tournaments/{tournamentId} {
-      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
-      allow create: if ownsLeague(request.resource.data.leagueId);
-      allow update, delete: if ownsLeague(resource.data.leagueId);
-    }
-
-    match /seasons/{seasonId} {
-      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
-      allow create: if ownsLeague(request.resource.data.leagueId);
-      allow update, delete: if ownsLeague(resource.data.leagueId);
-    }
-
-    match /teams/{teamId} {
-      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
-      allow create: if ownsLeague(request.resource.data.leagueId);
-      allow update, delete: if ownsLeague(resource.data.leagueId);
-    }
-
-    match /players/{playerId} {
-      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
-      allow create: if ownsLeague(request.resource.data.leagueId);
-      allow update, delete: if ownsLeague(resource.data.leagueId);
-    }
-
-    match /rounds/{roundId} {
-      allow read: if isRoot() || ownsSeason(resource.data.seasonId);
-      allow create: if ownsSeason(request.resource.data.seasonId);
-      allow update, delete: if ownsSeason(resource.data.seasonId);
-    }
-
-    match /matches/{matchId} {
-      allow read: if isRoot() || ownsSeason(resource.data.seasonId);
-      allow create: if ownsSeason(request.resource.data.seasonId);
-      allow update, delete: if ownsSeason(resource.data.seasonId);
+    match /{collection}/{document} {
+      allow read: if collection in ['leagues', 'tournaments', 'seasons', 'teams', 'players', 'rounds', 'matches']
+        && (isRoot() || owns());
+      allow create: if collection in ['leagues', 'tournaments', 'seasons', 'teams', 'players', 'rounds', 'matches']
+        && becomingOwner();
+      allow update, delete: if collection in ['leagues', 'tournaments', 'seasons', 'teams', 'players', 'rounds', 'matches']
+        && owns();
     }
   }
 }

@@ -69,6 +69,17 @@ class TournamentsViewModel(
         }
     }
 
+    fun updateLeague(name: String, description: String) {
+        val league = _uiState.value.league ?: return
+        if (name.isBlank()) return showError("Informe o nome da liga.")
+        viewModelScope.launch {
+            val updated = league.copy(name = name.trim(), description = description.trim())
+            leagueRepository.update(updated)
+                .onSuccess { _uiState.value = _uiState.value.copy(league = updated) }
+                .onFailure { showError(it.message) }
+        }
+    }
+
     fun consumeError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
