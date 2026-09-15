@@ -164,15 +164,13 @@ fun MatchResultDialog(
                     }
                 }
 
-                if (keepers.isNotEmpty()) {
-                    HorizontalDivider()
-                    KeeperSection(
-                        keepers = keepers,
-                        selectedId = keeperId,
-                        saves = savesForKeeper,
-                        onSelect = { if (showingHome) homeKeeperId = it else awayKeeperId = it }
-                    )
-                }
+                HorizontalDivider()
+                KeeperSection(
+                    keepers = keepers,
+                    selectedId = keeperId,
+                    saves = savesForKeeper,
+                    onSelect = { if (showingHome) homeKeeperId = it else awayKeeperId = it }
+                )
             }
         },
         confirmButton = {
@@ -376,6 +374,15 @@ private fun KeeperSection(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        if (keepers.isEmpty()) {
+            Text(
+                "Este time ainda não tem jogadores cadastrados.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            return@Column
+        }
 
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),

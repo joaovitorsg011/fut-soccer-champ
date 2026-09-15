@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.futsoccerchamp.data.firebase.FirebaseModule
 import com.futsoccerchamp.data.model.Match
 import com.futsoccerchamp.data.model.Player
+import com.futsoccerchamp.data.model.PlayerPosition
 import com.futsoccerchamp.data.model.Round
 import com.futsoccerchamp.data.model.Season
 import com.futsoccerchamp.data.model.Team
@@ -44,6 +45,19 @@ data class SeasonUiState(
     fun matchesOfRound(roundId: String): List<Match> = matches.filter { it.roundId == roundId }
 
     fun playersOf(teamId: String): List<Player> = players.filter { it.teamId == teamId }
+
+    fun standingOf(teamId: String): Standing? = standings.firstOrNull { it.teamId == teamId }
+
+    fun positionOf(teamId: String): Int = standings.indexOfFirst { it.teamId == teamId } + 1
+
+    fun playerTotals(playerId: String): Triple<Int, Int, Int> {
+        val finished = matches.filter { it.finished }
+        return Triple(
+            finished.sumOf { it.goals[playerId] ?: 0 },
+            finished.sumOf { it.saves[playerId] ?: 0 },
+            finished.sumOf { it.misses[playerId] ?: 0 }
+        )
+    }
 
     val drawLocked: Boolean get() = matches.any { it.finished }
 }
@@ -145,6 +159,39 @@ class SeasonViewModel(
     }
 
     fun clearResult(match: Match) = launchWithError { matchRepository.clearResult(match.id) }
+
+    fun addPlayer(teamId: String, name: String, number: String, position: String) {
+        if (name.isBlank()) return showError("Informe o nome do jogador.")
+        if (_uiState.value.playersOf(teamId).any { it.name.equals(name.trim(), ignoreCase = true) }) {
+            return showError("Este jogador já está no elenco.")
+        }
+        launchWithError {
+            playerRepository.create(
+                Player(
+                    leagueId = leagueId,
+                    teamId = teamId,
+                    name = name.trim(),
+                    number = number.toIntOrNull() ?: 0,
+                    position = position.ifBlank { PlayerPosition.FORWARD.name }
+                )
+            )
+        }
+    }
+
+    fun updatePlayer(player: Player, name: String, number: String, position: String) {
+        if (name.isBlank()) return showError("Informe o nome do jogador.")
+        launchWithError {
+            playerRepository.update(
+                player.copy(
+                    name = name.trim(),
+                    number = number.toIntOrNull() ?: 0,
+                    position = position
+                )
+            )
+        }
+    }
+
+    fun deletePlayer(player: Player) = launchWithError { playerRepository.delete(player.id) }
 
     fun restartSeason() = launchWithError { roundRepository.deleteBySeason(seasonId) }
 

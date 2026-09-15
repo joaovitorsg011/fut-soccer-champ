@@ -20,7 +20,7 @@ import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +56,7 @@ import com.futsoccerchamp.data.model.Team
 import com.futsoccerchamp.presentation.common.ConfirmDialog
 import com.futsoccerchamp.presentation.common.EmptyState
 import com.futsoccerchamp.presentation.common.LoadingBox
+import com.futsoccerchamp.presentation.players.PlayersScreen
 import com.futsoccerchamp.presentation.rankings.RankingsTab
 import com.futsoccerchamp.presentation.rounds.RoundsTab
 import com.futsoccerchamp.presentation.standings.StandingsTab
@@ -68,7 +69,7 @@ private enum class Section(val label: String, val icon: ImageVector) {
     STANDINGS("Classificação", Icons.Default.Leaderboard),
     ROUNDS("Rodadas e partidas", Icons.Default.SportsSoccer),
     RANKINGS("Artilharia e defesas", Icons.Default.EmojiEvents),
-    TEAMS("Participantes", Icons.Default.Groups),
+    TEAMS("Times", Icons.Default.Groups),
     STATISTICS("Estatísticas", Icons.Default.QueryStats)
 }
 
@@ -87,6 +88,27 @@ fun SeasonScreen(
     var section by remember { mutableStateOf(Section.STANDINGS) }
     var confirmRestart by remember { mutableStateOf(false) }
     var showParticipants by remember { mutableStateOf(false) }
+    var openedTeamId by remember { mutableStateOf<String?>(null) }
+
+    val openedTeam = openedTeamId?.let { id -> state.teams.firstOrNull { it.id == id } }
+
+    if (openedTeam != null) {
+        PlayersScreen(
+            team = openedTeam,
+            players = state.playersOf(openedTeam.id),
+            readOnly = readOnly,
+            subtitle = state.season?.label ?: "Temporada",
+            header = { TeamSeasonHeader(state.standingOf(openedTeam.id), state.positionOf(openedTeam.id)) },
+            statsOf = state::playerTotals,
+            onAdd = { name, number, position ->
+                viewModel.addPlayer(openedTeam.id, name, number, position)
+            },
+            onEdit = viewModel::updatePlayer,
+            onDelete = viewModel::deletePlayer,
+            onBack = { openedTeamId = null }
+        )
+        return
+    }
 
     LaunchedEffect(state.error) {
         state.error?.let {
@@ -191,6 +213,7 @@ fun SeasonScreen(
                     section == Section.TEAMS -> ParticipantsTab(
                         state = state,
                         readOnly = readOnly,
+                        onOpenTeam = { openedTeamId = it.id },
                         onEditParticipants = { showParticipants = true }
                     )
                     else -> StatisticsSection(
@@ -233,16 +256,17 @@ fun SeasonScreen(
 private fun ParticipantsTab(
     state: SeasonUiState,
     readOnly: Boolean,
+    onOpenTeam: (Team) -> Unit,
     onEditParticipants: () -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
         if (!readOnly) {
-            Button(
+            OutlinedButton(
                 onClick = onEditParticipants,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Icon(Icons.Default.Groups, contentDescription = null)
-                Text("Escolher participantes", modifier = Modifier.padding(start = 8.dp))
+                Text("Escolher times participantes", modifier = Modifier.padding(start = 8.dp))
             }
         }
 
@@ -263,7 +287,7 @@ private fun ParticipantsTab(
             teamLimit = 0,
             readOnly = true,
             playerCountOf = { teamId -> state.playersOf(teamId).size },
-            onOpenTeam = {},
+            onOpenTeam = onOpenTeam,
             onEdit = { _, _, _, _ -> },
             onDelete = {}
         )

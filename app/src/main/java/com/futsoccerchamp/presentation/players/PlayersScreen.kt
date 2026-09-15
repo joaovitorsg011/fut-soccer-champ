@@ -60,6 +60,9 @@ fun PlayersScreen(
     team: Team,
     players: List<Player>,
     readOnly: Boolean = false,
+    subtitle: String = "Elenco",
+    header: (@Composable () -> Unit)? = null,
+    statsOf: ((String) -> Triple<Int, Int, Int>)? = null,
     onAdd: (name: String, number: String, position: String) -> Unit,
     onEdit: (Player, String, String, String) -> Unit,
     onDelete: (Player) -> Unit,
@@ -75,7 +78,7 @@ fun PlayersScreen(
                 title = {
                     Column {
                         Text(team.name)
-                        Text("Elenco", style = MaterialTheme.typography.labelSmall)
+                        Text(subtitle, style = MaterialTheme.typography.labelSmall)
                     }
                 },
                 navigationIcon = {
@@ -94,7 +97,7 @@ fun PlayersScreen(
         }
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
-            if (players.isEmpty()) {
+            if (players.isEmpty() && header == null) {
                 EmptyState(
                     title = "Nenhum jogador no elenco",
                     subtitle = "Adicione os jogadores para registrar gols e defesas nas partidas."
@@ -104,10 +107,13 @@ fun PlayersScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    header?.let { item { it() } }
+
                     items(players, key = { it.id }) { player ->
                         PlayerCard(
                             player = player,
                             editable = !readOnly,
+                            stats = statsOf?.invoke(player.id),
                             onEdit = { playerToEdit = player },
                             onDelete = { playerToDelete = player }
                         )
@@ -159,6 +165,7 @@ fun PlayersScreen(
 private fun PlayerCard(
     player: Player,
     editable: Boolean,
+    stats: Triple<Int, Int, Int>? = null,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -178,6 +185,13 @@ private fun PlayerCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                stats?.let { (goals, saves, misses) ->
+                    Text(
+                        "$goals gols · $saves defesas · $misses erros",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
             if (editable) {
                 IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar jogador") }
