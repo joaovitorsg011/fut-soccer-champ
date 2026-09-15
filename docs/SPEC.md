@@ -161,6 +161,7 @@ a tabela do Campeonato Brasileiro, em que o calendário nasce pronto do sorteio.
 | RF19 | Permitir refazer o sorteio apenas enquanto nenhuma partida tiver resultado registrado | Implementado |
 | RF20 | Bloquear o sorteio assim que o primeiro placar for salvo, preservando a integridade da competição | Implementado |
 | RF21 | Exibir uma rodada por vez, navegando por deslize lateral e por um seletor de rodadas | Implementado |
+| RF93 | Abrir a seção de rodadas na rodada corrente, a primeira com partida em aberto | Implementado |
 | RF22 | Definir data, horário e local da partida | Implementado |
 | RF55 | Reiniciar a competição, apagando rodadas, partidas e placares e preservando times e jogadores | Implementado |
 | RF59 | Enriquecer o cartão do confronto com aproveitamento recente e histórico do duelo | Planejado — Final |

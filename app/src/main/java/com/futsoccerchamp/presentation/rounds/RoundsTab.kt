@@ -32,7 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -90,6 +92,20 @@ fun RoundsTab(
 
     val pagerState = rememberPagerState(pageCount = { rounds.size })
     val scope = rememberCoroutineScope()
+
+    val currentRound = remember(rounds, matchesOf) {
+        rounds.indexOfFirst { round -> matchesOf(round.id).any { !it.finished } }
+            .takeIf { it >= 0 } ?: rounds.lastIndex
+    }
+    var jumpedToCurrent by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(rounds.size, currentRound) {
+        if (!jumpedToCurrent && rounds.isNotEmpty() && currentRound >= 0) {
+            jumpedToCurrent = true
+            pagerState.scrollToPage(currentRound)
+        }
+    }
+
 
     Column(modifier.fillMaxSize()) {
         ScrollableTabRow(
