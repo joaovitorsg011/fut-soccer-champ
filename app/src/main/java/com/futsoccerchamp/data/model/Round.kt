@@ -4,6 +4,6 @@ import com.google.firebase.firestore.DocumentId
 
 data class Round(
     @DocumentId val id: String = "",
-    val championshipId: String = "",
+    val seasonId: String = "",
     val number: Int = 0
 )

@@ -7,38 +7,70 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOwnerOf(championshipId) {
+    function isRoot() {
       return signedIn()
-        && get(/databases/$(database)/documents/championships/$(championshipId)).data.ownerId == request.auth.uid;
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ROOT';
+    }
+
+    function ownsLeague(leagueId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/leagues/$(leagueId)).data.ownerId == request.auth.uid;
+    }
+
+    function ownsSeason(seasonId) {
+      return signedIn()
+        && ownsLeague(get(/databases/$(database)/documents/seasons/$(seasonId)).data.leagueId);
     }
 
     match /users/{userId} {
-      allow read, write: if signedIn() && request.auth.uid == userId;
+      allow read: if signedIn() && (request.auth.uid == userId || isRoot());
+      allow create: if signedIn() && request.auth.uid == userId
+        && request.resource.data.role == 'ADMIN';
+      allow update, delete: if signedIn() && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role;
     }
 
-    match /championships/{championshipId} {
-      allow read, update, delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    match /leagues/{leagueId} {
+      allow read: if isRoot() || (signedIn() && resource.data.ownerId == request.auth.uid);
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /tournaments/{tournamentId} {
+      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
+      allow create: if ownsLeague(request.resource.data.leagueId);
+      allow update, delete: if ownsLeague(resource.data.leagueId);
+    }
+
+    match /seasons/{seasonId} {
+      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
+      allow create: if ownsLeague(request.resource.data.leagueId);
+      allow update, delete: if ownsLeague(resource.data.leagueId);
     }
 
     match /teams/{teamId} {
-      allow read, delete: if isOwnerOf(resource.data.championshipId);
-      allow create, update: if isOwnerOf(request.resource.data.championshipId);
-    }
-
-    match /rounds/{roundId} {
-      allow read, delete: if isOwnerOf(resource.data.championshipId);
-      allow create, update: if isOwnerOf(request.resource.data.championshipId);
+      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
+      allow create: if ownsLeague(request.resource.data.leagueId);
+      allow update, delete: if ownsLeague(resource.data.leagueId);
     }
 
     match /players/{playerId} {
-      allow read, delete: if isOwnerOf(resource.data.championshipId);
-      allow create, update: if isOwnerOf(request.resource.data.championshipId);
+      allow read: if isRoot() || ownsLeague(resource.data.leagueId);
+      allow create: if ownsLeague(request.resource.data.leagueId);
+      allow update, delete: if ownsLeague(resource.data.leagueId);
+    }
+
+    match /rounds/{roundId} {
+      allow read: if isRoot() || ownsSeason(resource.data.seasonId);
+      allow create: if ownsSeason(request.resource.data.seasonId);
+      allow update, delete: if ownsSeason(resource.data.seasonId);
     }
 
     match /matches/{matchId} {
-      allow read, delete: if isOwnerOf(resource.data.championshipId);
-      allow create, update: if isOwnerOf(request.resource.data.championshipId);
+      allow read: if isRoot() || ownsSeason(resource.data.seasonId);
+      allow create: if ownsSeason(request.resource.data.seasonId);
+      allow update, delete: if ownsSeason(resource.data.seasonId);
     }
   }
 }

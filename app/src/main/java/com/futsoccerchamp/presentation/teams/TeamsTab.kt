@@ -46,6 +46,7 @@ import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 fun TeamsTab(
     teams: List<Team>,
     teamLimit: Int,
+    readOnly: Boolean = false,
     playerCountOf: (String) -> Int,
     onOpenTeam: (Team) -> Unit,
     onEdit: (Team, String, String, String) -> Unit,
@@ -80,6 +81,7 @@ fun TeamsTab(
             TeamCard(
                 team = team,
                 playerCount = playerCountOf(team.id),
+                editable = !readOnly,
                 onClick = { onOpenTeam(team) },
                 onEdit = { teamToEdit = team },
                 onDelete = { teamToDelete = team }
@@ -118,6 +120,7 @@ fun TeamsTab(
 private fun TeamCard(
     team: Team,
     playerCount: Int,
+    editable: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -139,8 +142,10 @@ private fun TeamCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar time") }
-            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Excluir time") }
+            if (editable) {
+                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar time") }
+                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Excluir time") }
+            }
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,

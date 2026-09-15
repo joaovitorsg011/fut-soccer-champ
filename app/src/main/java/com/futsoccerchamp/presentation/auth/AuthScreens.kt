@@ -17,6 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -29,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,7 +57,7 @@ import com.futsoccerchamp.presentation.common.AuthBackground
 import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 
 @Composable
-fun LoginScreen(viewModel: AuthViewModel) {
+fun LoginScreen(viewModel: AuthViewModel, onNavigateToSignUp: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -84,6 +87,76 @@ fun LoginScreen(viewModel: AuthViewModel) {
             loading = state.loading,
             onClick = { viewModel.signIn(email, password) }
         )
+        TextButton(onClick = onNavigateToSignUp, modifier = Modifier.fillMaxWidth()) {
+            Text("Criar conta e cadastrar minha liga")
+        }
+    }
+}
+
+@Composable
+fun SignUpScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var name by rememberSaveable { mutableStateOf("") }
+    var leagueName by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+
+    AuthScaffold(
+        title = "Criar conta",
+        subtitle = "Sua conta nasce junto com a sua liga"
+    ) {
+        AppTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = "Seu nome",
+            leadingIcon = Icons.Outlined.Person,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+        Spacer(Modifier.height(12.dp))
+        AppTextField(
+            value = leagueName,
+            onValueChange = { leagueName = it },
+            label = "Nome da liga",
+            placeholder = "Fut Soccer Brasil",
+            supportingText = "Ela agrupa seus torneios, times e jogadores",
+            leadingIcon = Icons.Outlined.Shield,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+        Spacer(Modifier.height(12.dp))
+        AppTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = "E-mail",
+            leadingIcon = Icons.Outlined.Email,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+        )
+        Spacer(Modifier.height(12.dp))
+        PasswordField(
+            value = password,
+            onValueChange = { password = it },
+            label = "Senha",
+            imeAction = ImeAction.Next
+        )
+        Spacer(Modifier.height(12.dp))
+        PasswordField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = "Confirmar senha",
+            imeAction = ImeAction.Done
+        )
+
+        ErrorText(state.error)
+
+        Spacer(Modifier.height(24.dp))
+        PrimaryButton(
+            text = "Criar conta e liga",
+            loading = state.loading,
+            onClick = { viewModel.signUp(name, leagueName, email, password, confirmPassword) }
+        )
+        TextButton(onClick = onNavigateToLogin, modifier = Modifier.fillMaxWidth()) {
+            Text("Já tenho conta. Entrar")
+        }
     }
 }
 

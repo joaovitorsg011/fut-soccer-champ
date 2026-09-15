@@ -9,8 +9,8 @@ class MatchRepository(private val firestore: FirebaseFirestore) {
 
     private val collection = firestore.collection("matches")
 
-    fun observeByChampionship(championshipId: String): Flow<List<Match>> =
-        collection.whereEqualTo("championshipId", championshipId).snapshotsAsFlow()
+    fun observeBySeason(seasonId: String): Flow<List<Match>> =
+        collection.whereEqualTo("seasonId", seasonId).snapshotsAsFlow()
 
     fun observeByRound(roundId: String): Flow<List<Match>> =
         collection.whereEqualTo("roundId", roundId).snapshotsAsFlow()

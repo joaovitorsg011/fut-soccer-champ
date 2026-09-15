@@ -11,7 +11,7 @@ enum class PlayerPosition(val label: String) {
 
 data class Player(
     @DocumentId val id: String = "",
-    val championshipId: String = "",
+    val leagueId: String = "",
     val teamId: String = "",
     val name: String = "",
     val number: Int = 0,

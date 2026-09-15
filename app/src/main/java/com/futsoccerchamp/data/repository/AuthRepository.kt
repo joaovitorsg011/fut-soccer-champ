@@ -1,5 +1,8 @@
 package com.futsoccerchamp.data.repository
 
+import com.futsoccerchamp.data.model.League
+import com.futsoccerchamp.data.model.UserProfile
+import com.futsoccerchamp.data.model.UserRole
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,12 +25,39 @@ class AuthRepository(
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
-    suspend fun signUp(name: String, email: String, password: String): Result<Unit> = runCatching {
+    suspend fun profile(uid: String): UserProfile? =
+        firestore.collection("users").document(uid).get().await().toObject(UserProfile::class.java)
+
+    suspend fun signUp(
+        name: String,
+        email: String,
+        password: String,
+        leagueName: String
+    ): Result<Unit> = runCatching {
         val result = auth.createUserWithEmailAndPassword(email.trim(), password).await()
         val uid = result.user?.uid ?: error("Usuário não criado")
+
         firestore.collection("users").document(uid)
-            .set(mapOf("name" to name.trim(), "email" to email.trim()))
+            .set(
+                UserProfile(
+                    name = name.trim(),
+                    email = email.trim(),
+                    role = UserRole.ADMIN.name
+                )
+            )
             .await()
+
+        firestore.collection("leagues")
+            .add(
+                League(
+                    name = leagueName.trim(),
+                    ownerId = uid,
+                    ownerName = name.trim(),
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+            .await()
+        Unit
     }
 
     suspend fun signIn(email: String, password: String): Result<Unit> = runCatching {

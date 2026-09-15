@@ -48,10 +48,15 @@ conta como erro para o cobrador e como defesa para quem estava no gol adversári
 
 | Perfil | Descrição | Permissões |
 |--------|-----------|------------|
-| **Organizador** | Responsável por cadastrar e manter o campeonato | Acesso total aos dados que criou |
+| **Administrador da liga** | Cria a conta e a liga no mesmo passo, e mantém torneios, temporadas, times e resultados | Acesso total à liga que criou |
+| **Root** | Mantenedor do aplicativo | Enxerga todas as ligas, sem poder alterá-las |
 
-O aplicativo não possui tela de cadastro público: as contas são criadas no console do Firebase.
-Um organizador enxerga e altera apenas os campeonatos cujo `ownerId` corresponde ao seu usuário.
+O cadastro é aberto: quem se registra informa o nome da liga junto com os dados da conta, e passa a
+ser o administrador dela. Um administrador só enxerga as ligas cujo `ownerId` é o seu usuário.
+
+O perfil root existe para acompanhamento e suporte. Ele lê todas as ligas, mas o aplicativo oculta
+qualquer ação de escrita e as regras do Firestore negam qualquer gravação fora dos seus próprios
+dados. O papel é gravado em `users/{uid}.role` e não pode ser alterado pelo próprio usuário.
 
 ---
 
@@ -232,11 +237,14 @@ soma das conversões, o que garante que todo gol do resultado tenha um autor ide
 
 | ID | Requisito | Status |
 |----|-----------|--------|
-| RF48 | Cadastrar ligas, como entidade que agrupa torneios e times | Planejado — AC2 |
-| RF49 | Cadastrar torneios dentro de uma liga | Planejado — AC2 |
-| RF50 | Cadastrar temporadas dentro de um torneio | Planejado — AC2 |
-| RF51 | Vincular times e jogadores à liga, e não à temporada | Planejado — AC2 |
-| RF52 | Definir quais times da liga disputam cada temporada | Planejado — AC2 |
+| RF48 | Cadastrar ligas, como entidade que agrupa torneios e times | Implementado |
+| RF49 | Cadastrar torneios dentro de uma liga | Implementado |
+| RF50 | Cadastrar temporadas dentro de um torneio | Implementado |
+| RF51 | Vincular times e jogadores à liga, e não à temporada | Implementado |
+| RF52 | Definir quais times da liga disputam cada temporada | Implementado |
+| RF77 | Criar conta e liga no mesmo cadastro, tornando o autor administrador da liga | Implementado |
+| RF78 | Reconhecer o perfil root, que enxerga todas as ligas sem poder alterá-las | Implementado |
+| RF79 | Ocultar do perfil root todas as ações de escrita | Implementado |
 | RF53 | Consolidar o histórico de um time somando todas as suas temporadas | Planejado — AC3 |
 | RF54 | Consolidar o histórico de um jogador somando todas as suas temporadas | Planejado — AC3 |
 
@@ -293,35 +301,13 @@ competições brasileiras e sul-americanas.
 
 ```
 users/{userId}
-  name · email
+  name · email · role   ADMIN ou ROOT
 
-championships/{championshipId}
-  name · season · teamLimit · description · ownerId · createdAt
-
-teams/{teamId}
-  championshipId · name · abbreviation · logo · createdAt
-
-players/{playerId}
-  championshipId · teamId · name · number · position · createdAt
-
-rounds/{roundId}
-  championshipId · number
-
-matches/{matchId}
-  championshipId · roundId · homeTeamId · awayTeamId
-  homeGoals · awayGoals · date · time · place · finished
-  goals   playerId → gols na partida
-  saves   playerId → defesas na partida
-```
-
-### 6.2 Estrutura planejada (AC2)
-
-```
 leagues/{leagueId}
-  name · ownerId · createdAt
+  name · description · ownerId · ownerName · createdAt
 
 tournaments/{tournamentId}
-  leagueId · name · createdAt
+  leagueId · name · description · createdAt
 
 seasons/{seasonId}
   leagueId · tournamentId · label · teamIds · createdAt
@@ -338,12 +324,24 @@ rounds/{roundId}
 matches/{matchId}
   seasonId · roundId · homeTeamId · awayTeamId
   homeGoals · awayGoals · date · time · place · finished
-  goals · saves
+  goals    playerId → cobranças convertidas
+  misses   playerId → cobranças perdidas
+  saves    playerId → defesas na partida
 ```
 
-A diferença essencial é o vínculo de `teams` e `players`: eles passam a pertencer à **liga**, e a
-temporada apenas relaciona quais times a disputam. É isso que torna possível somar o desempenho de
-um time ou de um jogador ao longo de várias temporadas.
+### 6.2 Como a hierarquia sustenta o histórico
+
+`teams` e `players` pertencem à **liga**, não à temporada. A temporada apenas relaciona, em
+`teamIds`, quais times da liga a disputam. Um time cadastrado uma vez participa de quantas
+temporadas forem criadas, e o desempenho dele em cada uma soma no histórico da liga.
+
+```
+Liga  ──┬── Times ── Jogadores        permanentes
+        └── Torneios
+              └── Temporadas          teamIds aponta para os times da liga
+                    ├── Rodadas
+                    └── Partidas
+```
 
 ### 6.3 Regras de segurança
 
@@ -454,9 +452,11 @@ a ele. A posição cadastrada serve apenas como sugestão inicial.
 
 ```
 Splash
-  └── Login
-        └── Meus campeonatos
-              └── Campeonato  (menu lateral)
+  └── Login ou cadastro com liga
+        └── Minhas ligas
+              └── Liga ──► Times da liga ──► Elenco
+                    └── Torneio
+                          └── Temporada  (menu lateral)
                     ├── Classificação          tela inicial
                     ├── Times ──► Elenco do time
                     ├── Rodadas e partidas
@@ -499,7 +499,48 @@ Os testes cobrem a camada `domain`, onde estão as regras que sustentam o produt
 
 ---
 
-## 10. Planejamento das entregas
+## 10. Questões em aberto
+
+Pontos que afetam o rumo do produto e ainda não têm decisão tomada. Ficam registrados aqui para
+serem retomados antes das últimas entregas.
+
+### 10.1 Acesso do visualizador sem conta
+
+Hoje qualquer pessoa precisa de login para abrir o aplicativo. A intenção é que **apenas o criador
+da liga tenha conta**: os demais apenas acompanham tabela, rodadas e rankings, sem se cadastrar.
+
+Na web isso seria trivial — bastaria enviar o link da liga. Em um aplicativo instalado o problema é
+outro: é preciso levar a pessoa até a liga certa sem exigir cadastro.
+
+Alternativas a avaliar:
+
+| Alternativa | Como funcionaria | Custo |
+|-------------|------------------|-------|
+| Link dinâmico | Um link abre o app já na liga, ou leva à loja se não estiver instalado | Firebase Dynamic Links está sendo descontinuado; exigiria substituto |
+| Código de convite | O visitante digita um código curto da liga na primeira abertura | Simples de implementar, mas exige uma etapa manual |
+| Autenticação anônima | O app cria uma sessão invisível e o acesso vem do link ou do código | Sem cadastro para o usuário, mas ainda depende de como entregar a liga |
+| Página web pública | Cada liga ganha um endereço público somente leitura, fora do aplicativo | Resolve o compartilhamento, mas cria uma segunda base de código |
+
+### 10.2 Alcance de plataforma
+
+O aplicativo é nativo Android, então quem usa iPhone fica de fora. Como o público de um campeonato
+amador é misto, isso limita justamente o lado de quem só quer acompanhar.
+
+Caminhos possíveis:
+
+| Caminho | Vantagem | Custo |
+|---------|----------|-------|
+| Manter Android nativo e criar uma visualização web | Preserva todo o trabalho já feito; a web atende quem só acompanha | Duas bases de código para manter |
+| Migrar para uma solução multiplataforma | Um código só para Android e iOS | Reescrita da interface; Firebase continua atendendo |
+| Migrar tudo para web responsiva | Um endereço serve todos os aparelhos, sem instalação | Perde a experiência de aplicativo instalado |
+
+A decisão depende de quanto o acompanhamento por terceiros pesa no produto final. Se o uso
+principal continuar sendo o organizador lançando resultados, o Android nativo com uma página
+pública de leitura resolve com o menor esforço.
+
+---
+
+## 11. Planejamento das entregas
 
 | Entrega | Data | Funcionalidade apresentada |
 |:-------:|:----:|----------------------------|
@@ -513,7 +554,7 @@ e serão apresentadas junto das entregas em que forem evoluídas.
 
 ---
 
-## 11. Equipe
+## 12. Equipe
 
 | Nome | RA |
 |------|-----|

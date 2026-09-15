@@ -59,6 +59,7 @@ import com.futsoccerchamp.presentation.common.dismissKeyboardOnTap
 fun PlayersScreen(
     team: Team,
     players: List<Player>,
+    readOnly: Boolean = false,
     onAdd: (name: String, number: String, position: String) -> Unit,
     onEdit: (Player, String, String, String) -> Unit,
     onDelete: (Player) -> Unit,
@@ -85,8 +86,10 @@ fun PlayersScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Adicionar jogador")
+            if (!readOnly) {
+                FloatingActionButton(onClick = { showAddDialog = true }) {
+                    Icon(Icons.Default.Add, contentDescription = "Adicionar jogador")
+                }
             }
         }
     ) { padding ->
@@ -104,6 +107,7 @@ fun PlayersScreen(
                     items(players, key = { it.id }) { player ->
                         PlayerCard(
                             player = player,
+                            editable = !readOnly,
                             onEdit = { playerToEdit = player },
                             onDelete = { playerToDelete = player }
                         )
@@ -152,7 +156,12 @@ fun PlayersScreen(
 }
 
 @Composable
-private fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit) {
+private fun PlayerCard(
+    player: Player,
+    editable: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     Card(Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(12.dp).fillMaxWidth(),
@@ -170,8 +179,10 @@ private fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit)
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar jogador") }
-            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Excluir jogador") }
+            if (editable) {
+                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar jogador") }
+                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Excluir jogador") }
+            }
         }
     }
 }

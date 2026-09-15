@@ -9,12 +9,8 @@ class RoundRepository(private val firestore: FirebaseFirestore) {
 
     private val collection = firestore.collection("rounds")
 
-    fun observeByChampionship(championshipId: String): Flow<List<Round>> =
-        collection.whereEqualTo("championshipId", championshipId).snapshotsAsFlow()
-
-    suspend fun nextNumber(championshipId: String): Int =
-        collection.whereEqualTo("championshipId", championshipId).get().await()
-            .documents.mapNotNull { it.getLong("number")?.toInt() }.maxOrNull()?.plus(1) ?: 1
+    fun observeBySeason(seasonId: String): Flow<List<Round>> =
+        collection.whereEqualTo("seasonId", seasonId).snapshotsAsFlow()
 
     suspend fun create(round: Round): Result<String> = runCatching {
         collection.add(round).await().id
@@ -27,10 +23,10 @@ class RoundRepository(private val firestore: FirebaseFirestore) {
         Unit
     }
 
-    suspend fun deleteByChampionship(championshipId: String): Result<Unit> = runCatching {
-        firestore.collection("matches").whereEqualTo("championshipId", championshipId).get().await()
+    suspend fun deleteBySeason(seasonId: String): Result<Unit> = runCatching {
+        firestore.collection("matches").whereEqualTo("seasonId", seasonId).get().await()
             .documents.forEach { it.reference.delete().await() }
-        collection.whereEqualTo("championshipId", championshipId).get().await()
+        collection.whereEqualTo("seasonId", seasonId).get().await()
             .documents.forEach { it.reference.delete().await() }
         Unit
     }

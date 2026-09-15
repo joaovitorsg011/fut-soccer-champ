@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,12 +19,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.futsoccerchamp.presentation.auth.AuthViewModel
 import com.futsoccerchamp.presentation.auth.LoginScreen
-import com.futsoccerchamp.presentation.championship.ChampionshipScreen
-import com.futsoccerchamp.presentation.championship.ChampionshipViewModel
-import com.futsoccerchamp.presentation.home.HomeScreen
-import com.futsoccerchamp.presentation.home.HomeViewModel
+import com.futsoccerchamp.presentation.auth.SignUpScreen
+import com.futsoccerchamp.presentation.leagues.LeaguesScreen
+import com.futsoccerchamp.presentation.leagues.LeaguesViewModel
+import com.futsoccerchamp.presentation.seasons.SeasonScreen
+import com.futsoccerchamp.presentation.seasons.SeasonViewModel
+import com.futsoccerchamp.presentation.seasons.SeasonsScreen
+import com.futsoccerchamp.presentation.seasons.SeasonsViewModel
 import com.futsoccerchamp.presentation.splash.SplashScreen
+import com.futsoccerchamp.presentation.teams.LeagueTeamsScreen
+import com.futsoccerchamp.presentation.teams.LeagueTeamsViewModel
 import com.futsoccerchamp.presentation.theme.ThemeMode
+import com.futsoccerchamp.presentation.tournaments.TournamentsScreen
+import com.futsoccerchamp.presentation.tournaments.TournamentsViewModel
 
 @Composable
 fun AppNavigation(
@@ -32,66 +40,139 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
-    val userId by authViewModel.userId.collectAsStateWithLifecycle()
+    val session by authViewModel.session.collectAsStateWithLifecycle()
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
-
             SplashScreen(
                 onFinished = {
-                    navController.replaceWith(if (userId == null) Routes.LOGIN else Routes.HOME)
+                    navController.replaceWith(
+                        if (session.userId == null) Routes.LOGIN else Routes.LEAGUES
+                    )
                 }
             )
         }
 
         composable(Routes.LOGIN) {
-            LoginScreen(viewModel = authViewModel)
+            LoginScreen(
+                viewModel = authViewModel,
+                onNavigateToSignUp = { navController.navigate(Routes.SIGN_UP) }
+            )
         }
 
-        composable(Routes.HOME) {
-            val ownerId = userId
-            if (ownerId != null) {
-                val homeViewModel: HomeViewModel = viewModel(
-                    key = "home-$ownerId",
-                    factory = factory { HomeViewModel(ownerId) }
+        composable(Routes.SIGN_UP) {
+            SignUpScreen(
+                viewModel = authViewModel,
+                onNavigateToLogin = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.LEAGUES) {
+            val userId = session.userId
+            if (userId != null) {
+                val leaguesViewModel: LeaguesViewModel = viewModel(
+                    key = "leagues-$userId-${session.isRoot}",
+                    factory = factory { LeaguesViewModel(userId, session.isRoot) }
                 )
-                HomeScreen(
-                    viewModel = homeViewModel,
+                LeaguesScreen(
+                    viewModel = leaguesViewModel,
+                    readOnly = session.isRoot,
                     themeMode = themeMode,
                     onThemeModeChange = onThemeModeChange,
-                    onOpenChampionship = { navController.navigate(Routes.championship(it)) },
+                    onOpenLeague = { navController.navigate(Routes.league(it)) },
                     onSignOut = { authViewModel.signOut() }
                 )
             }
         }
 
         composable(
-            route = Routes.CHAMPIONSHIP,
-            arguments = listOf(navArgument("championshipId") { type = NavType.StringType })
+            route = Routes.LEAGUE,
+            arguments = listOf(navArgument("leagueId") { type = NavType.StringType })
         ) { entry ->
-            val championshipId = entry.arguments?.getString("championshipId").orEmpty()
-            val championshipViewModel: ChampionshipViewModel = viewModel(
-                key = "championship-$championshipId",
-                factory = factory { ChampionshipViewModel(championshipId) }
+            val leagueId = entry.arg("leagueId")
+            val tournamentsViewModel: TournamentsViewModel = viewModel(
+                key = "tournaments-$leagueId",
+                factory = factory { TournamentsViewModel(leagueId) }
             )
-            ChampionshipScreen(
-                viewModel = championshipViewModel,
-                themeMode = themeMode,
-                onThemeModeChange = onThemeModeChange,
-                onBackToChampionships = { navController.popBackStack(Routes.HOME, inclusive = false) },
-                onSignOut = { authViewModel.signOut() }
+            TournamentsScreen(
+                viewModel = tournamentsViewModel,
+                readOnly = session.isRoot,
+                onOpenTournament = { navController.navigate(Routes.tournament(leagueId, it)) },
+                onOpenTeams = { navController.navigate(Routes.leagueTeams(leagueId)) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Routes.LEAGUE_TEAMS,
+            arguments = listOf(navArgument("leagueId") { type = NavType.StringType })
+        ) { entry ->
+            val leagueId = entry.arg("leagueId")
+            val teamsViewModel: LeagueTeamsViewModel = viewModel(
+                key = "league-teams-$leagueId",
+                factory = factory { LeagueTeamsViewModel(leagueId) }
+            )
+            LeagueTeamsScreen(
+                viewModel = teamsViewModel,
+                readOnly = session.isRoot,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Routes.TOURNAMENT,
+            arguments = listOf(
+                navArgument("leagueId") { type = NavType.StringType },
+                navArgument("tournamentId") { type = NavType.StringType }
+            )
+        ) { entry ->
+            val leagueId = entry.arg("leagueId")
+            val tournamentId = entry.arg("tournamentId")
+            val seasonsViewModel: SeasonsViewModel = viewModel(
+                key = "seasons-$tournamentId",
+                factory = factory { SeasonsViewModel(leagueId, tournamentId) }
+            )
+            SeasonsScreen(
+                viewModel = seasonsViewModel,
+                readOnly = session.isRoot,
+                onOpenSeason = { navController.navigate(Routes.season(leagueId, it)) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Routes.SEASON,
+            arguments = listOf(
+                navArgument("leagueId") { type = NavType.StringType },
+                navArgument("seasonId") { type = NavType.StringType }
+            )
+        ) { entry ->
+            val leagueId = entry.arg("leagueId")
+            val seasonId = entry.arg("seasonId")
+            val seasonViewModel: SeasonViewModel = viewModel(
+                key = "season-$seasonId",
+                factory = factory { SeasonViewModel(leagueId, seasonId) }
+            )
+            SeasonScreen(
+                viewModel = seasonViewModel,
+                readOnly = session.isRoot,
+                onBack = { navController.popBackStack() }
             )
         }
     }
 
-    var previousUserId by remember { mutableStateOf(userId) }
-    LaunchedEffect(userId) {
-        if (userId != previousUserId) {
-            previousUserId = userId
-            navController.replaceWith(if (userId == null) Routes.LOGIN else Routes.HOME)
+    var previousUserId by remember { mutableStateOf(session.userId) }
+    LaunchedEffect(session.userId) {
+        if (session.userId != previousUserId) {
+            previousUserId = session.userId
+            navController.replaceWith(
+                if (session.userId == null) Routes.LOGIN else Routes.LEAGUES
+            )
         }
     }
 }
+
+private fun NavBackStackEntry.arg(name: String): String = arguments?.getString(name).orEmpty()
 
 private fun NavHostController.replaceWith(route: String) {
     navigate(route) {

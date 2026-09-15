@@ -9,11 +9,8 @@ class TeamRepository(private val firestore: FirebaseFirestore) {
 
     private val collection = firestore.collection("teams")
 
-    fun observeByChampionship(championshipId: String): Flow<List<Team>> =
-        collection.whereEqualTo("championshipId", championshipId).snapshotsAsFlow()
-
-    suspend fun count(championshipId: String): Int =
-        collection.whereEqualTo("championshipId", championshipId).get().await().size()
+    fun observeByLeague(leagueId: String): Flow<List<Team>> =
+        collection.whereEqualTo("leagueId", leagueId).snapshotsAsFlow()
 
     suspend fun create(team: Team): Result<String> = runCatching {
         collection.add(team.copy(createdAt = System.currentTimeMillis())).await().id
@@ -36,11 +33,15 @@ class TeamRepository(private val firestore: FirebaseFirestore) {
     suspend fun delete(team: Team): Result<Unit> = runCatching {
         firestore.collection("players").whereEqualTo("teamId", team.id).get().await()
             .documents.forEach { it.reference.delete().await() }
-        val matches = firestore.collection("matches")
-            .whereEqualTo("championshipId", team.championshipId).get().await()
-        matches.documents
-            .filter { it.getString("homeTeamId") == team.id || it.getString("awayTeamId") == team.id }
-            .forEach { it.reference.delete().await() }
+        listOf("homeTeamId", "awayTeamId").forEach { field ->
+            firestore.collection("matches").whereEqualTo(field, team.id).get().await()
+                .documents.forEach { it.reference.delete().await() }
+        }
+        firestore.collection("seasons").whereArrayContains("teamIds", team.id).get().await()
+            .documents.forEach { season ->
+                val remaining = (season.get("teamIds") as? List<*>).orEmpty().filterNot { it == team.id }
+                season.reference.update("teamIds", remaining).await()
+            }
         collection.document(team.id).delete().await()
         Unit
     }

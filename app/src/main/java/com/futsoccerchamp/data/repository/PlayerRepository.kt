@@ -9,8 +9,8 @@ class PlayerRepository(private val firestore: FirebaseFirestore) {
 
     private val collection = firestore.collection("players")
 
-    fun observeByChampionship(championshipId: String): Flow<List<Player>> =
-        collection.whereEqualTo("championshipId", championshipId).snapshotsAsFlow()
+    fun observeByLeague(leagueId: String): Flow<List<Player>> =
+        collection.whereEqualTo("leagueId", leagueId).snapshotsAsFlow()
 
     suspend fun create(player: Player): Result<String> = runCatching {
         collection.add(player.copy(createdAt = System.currentTimeMillis())).await().id

@@ -60,6 +60,7 @@ fun RoundsTab(
     teamOf: (String) -> Team?,
     playersOf: (String) -> List<Player>,
     drawLocked: Boolean,
+    readOnly: Boolean = false,
     onEditMatch: (Match, String, String, String, String, String) -> Unit,
     onRegisterResult: (Match, Int, Int, Map<String, Int>, Map<String, Int>, Map<String, Int>) -> Unit,
     onClearResult: (Match) -> Unit,
@@ -71,6 +72,14 @@ fun RoundsTab(
     var confirmGenerate by remember { mutableStateOf(false) }
 
     if (rounds.isEmpty()) {
+        if (readOnly) {
+            EmptyState(
+                title = "Tabela ainda não sorteada",
+                subtitle = "O administrador desta liga ainda não sorteou as rodadas.",
+                modifier = modifier
+            )
+            return
+        }
         DrawPrompt(
             enoughTeams = teams.size >= 2,
             onGenerate = onGenerateRounds,
@@ -111,12 +120,12 @@ fun RoundsTab(
                         match = match,
                         home = teamOf(match.homeTeamId),
                         away = teamOf(match.awayTeamId),
-                        onOpenResult = { matchForResult = match },
-                        onOpenDetails = { matchToEdit = match }
+                        onOpenResult = { if (!readOnly) matchForResult = match },
+                        onOpenDetails = { if (!readOnly) matchToEdit = match }
                     )
                 }
 
-                if (!drawLocked) {
+                if (!drawLocked && !readOnly) {
                     item {
                         OutlinedButton(
                             onClick = { confirmGenerate = true },
@@ -126,7 +135,7 @@ fun RoundsTab(
                             Text("Sortear tabela novamente", modifier = Modifier.padding(start = 8.dp))
                         }
                     }
-                } else {
+                } else if (!readOnly) {
                     item { DrawLockedNotice() }
                 }
             }

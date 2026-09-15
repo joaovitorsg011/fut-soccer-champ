@@ -2,12 +2,11 @@ package com.futsoccerchamp.data.model
 
 import com.google.firebase.firestore.DocumentId
 
-data class Team(
+data class League(
     @DocumentId val id: String = "",
-    val leagueId: String = "",
     val name: String = "",
-    val abbreviation: String = "",
-    val logoUrl: String = "",
-    val logo: String = "",
+    val description: String = "",
+    val ownerId: String = "",
+    val ownerName: String = "",
     val createdAt: Long = 0L
 )
