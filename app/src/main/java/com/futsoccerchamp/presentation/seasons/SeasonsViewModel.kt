@@ -58,7 +58,6 @@ class SeasonsViewModel(
 
     fun create(label: String, teamIds: List<String>) {
         if (label.isBlank()) return showError("Informe o nome da temporada.")
-        if (teamIds.size < 2) return showError("Selecione ao menos dois times participantes.")
         viewModelScope.launch {
             repository.create(
                 Season(
@@ -73,7 +72,6 @@ class SeasonsViewModel(
 
     fun update(season: Season, label: String, teamIds: List<String>) {
         if (label.isBlank()) return showError("Informe o nome da temporada.")
-        if (teamIds.size < 2) return showError("Selecione ao menos dois times participantes.")
         viewModelScope.launch {
             repository.update(season.copy(label = label.trim(), teamIds = teamIds))
                 .onFailure { showError(it.message) }

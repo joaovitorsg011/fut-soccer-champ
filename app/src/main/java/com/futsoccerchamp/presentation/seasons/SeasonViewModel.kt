@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 data class SeasonUiState(
     val loading: Boolean = true,
     val season: Season? = null,
+    val leagueTeams: List<Team> = emptyList(),
     val teams: List<Team> = emptyList(),
     val players: List<Player> = emptyList(),
     val rounds: List<Round> = emptyList(),
@@ -147,6 +148,19 @@ class SeasonViewModel(
 
     fun restartSeason() = launchWithError { roundRepository.deleteBySeason(seasonId) }
 
+    fun updateParticipants(teamIds: List<String>) {
+        val season = _uiState.value.season ?: return
+        if (_uiState.value.matches.isNotEmpty()) {
+            return showError("Reinicie a temporada antes de alterar os participantes.")
+        }
+        launchWithError {
+            seasonRepository.setParticipants(seasonId, teamIds).onSuccess {
+                update { copy(season = season.copy(teamIds = teamIds)) }
+                applyParticipants()
+            }
+        }
+    }
+
     fun consumeError() = update { copy(error = null) }
 
     private fun applyParticipants() {
@@ -157,7 +171,13 @@ class SeasonViewModel(
             allTeams.filter { it.id in participants }
         }
         val teamIds = teams.map { it.id }.toSet()
-        update { copy(teams = teams, players = allPlayers.filter { it.teamId in teamIds }) }
+        update {
+            copy(
+                leagueTeams = allTeams,
+                teams = teams,
+                players = allPlayers.filter { it.teamId in teamIds }
+            )
+        }
         recalculate()
     }
 

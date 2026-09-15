@@ -116,7 +116,11 @@ fun SeasonsScreen(
                     items(state.seasons, key = { it.id }) { season ->
                         EntityCard(
                             title = season.label,
-                            subtitle = "${season.teamIds.size} times participantes",
+                            subtitle = if (season.teamIds.isEmpty()) {
+                                "Sem participantes definidos"
+                            } else {
+                                "${season.teamIds.size} times participantes"
+                            },
                             icon = Icons.Default.CalendarMonth,
                             onClick = { onOpenSeason(season.id) },
                             editable = !readOnly,
@@ -208,7 +212,7 @@ private fun SeasonFormDialog(
 
                 if (teams.isEmpty()) {
                     Text(
-                        "Cadastre os times da liga antes de criar a temporada.",
+                        "A liga ainda não tem times. Crie a temporada agora e vincule os participantes depois, em Times e elencos.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
