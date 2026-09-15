@@ -3,32 +3,36 @@ package com.futsoccerchamp.presentation.matches
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SportsHandball
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -37,9 +41,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.futsoccerchamp.data.model.Match
 import com.futsoccerchamp.data.model.Player
 import com.futsoccerchamp.data.model.Team
@@ -50,6 +58,7 @@ private enum class Attempt { NONE, SCORED, MISSED }
 
 private const val PENALTIES_PER_TEAM = 5
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatchResultDialog(
     match: Match,
@@ -81,39 +90,78 @@ fun MatchResultDialog(
 
     var homeKeeperId by remember(homePlayers) { mutableStateOf(defaultKeeper(homePlayers)) }
     var awayKeeperId by remember(awayPlayers) { mutableStateOf(defaultKeeper(awayPlayers)) }
-
     var selectedTeamId by remember { mutableStateOf(match.homeTeamId) }
 
-    val homeShooters = homePlayers
-    val awayShooters = awayPlayers
+    fun count(players: List<Player>, attempt: Attempt) = players.count { attempts[it.id] == attempt }
 
-    fun count(players: List<Player>, attempt: Attempt) =
-        players.count { attempts[it.id] == attempt }
-
-    val homeGoals = count(homeShooters, Attempt.SCORED)
-    val awayGoals = count(awayShooters, Attempt.SCORED)
-    val homeMisses = count(homeShooters, Attempt.MISSED)
-    val awayMisses = count(awayShooters, Attempt.MISSED)
-    val homeTaken = homeGoals + homeMisses
-    val awayTaken = awayGoals + awayMisses
+    val homeGoals = count(homePlayers, Attempt.SCORED)
+    val awayGoals = count(awayPlayers, Attempt.SCORED)
+    val homeMisses = count(homePlayers, Attempt.MISSED)
+    val awayMisses = count(awayPlayers, Attempt.MISSED)
 
     val showingHome = selectedTeamId == match.homeTeamId
-    val shooters = if (showingHome) homeShooters else awayShooters
-    val keepers = if (showingHome) homePlayers else awayPlayers
+    val squad = if (showingHome) homePlayers else awayPlayers
     val keeperId = if (showingHome) homeKeeperId else awayKeeperId
     val savesForKeeper = if (showingHome) awayMisses else homeMisses
     val selectedTeam = if (showingHome) homeTeam else awayTeam
-    val taken = if (showingHome) homeTaken else awayTaken
+    val taken = if (showingHome) homeGoals + homeMisses else awayGoals + awayMisses
     val remaining = PENALTIES_PER_TEAM - taken
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        title = { Text("Disputa de pênaltis") },
-        text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()).heightIn(max = 520.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Disputa de pênaltis") },
+                    navigationIcon = {
+                        IconButton(onClick = onDismiss) {
+                            Icon(Icons.Default.Close, contentDescription = "Fechar")
+                        }
+                    },
+                    actions = {
+                        if (match.finished) {
+                            TextButton(
+                                onClick = {
+                                    onClearResult()
+                                    onDismiss()
+                                }
+                            ) { Text("Limpar") }
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                Surface(tonalElevation = 3.dp) {
+                    Column(Modifier.padding(16.dp)) {
+                        KeeperSection(
+                            squad = squad,
+                            selectedId = keeperId,
+                            saves = savesForKeeper,
+                            teamName = selectedTeam?.name.orEmpty(),
+                            onSelect = { if (showingHome) homeKeeperId = it else awayKeeperId = it }
+                        )
+
+                        Button(
+                            onClick = {
+                                val goals = attempts.filterValues { it == Attempt.SCORED }.mapValues { 1 }
+                                val misses = attempts.filterValues { it == Attempt.MISSED }.mapValues { 1 }
+                                val saves = buildMap {
+                                    if (homeKeeperId.isNotBlank() && awayMisses > 0) put(homeKeeperId, awayMisses)
+                                    if (awayKeeperId.isNotBlank() && homeMisses > 0) put(awayKeeperId, homeMisses)
+                                }
+                                onConfirm(homeGoals, awayGoals, goals, misses, saves)
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                        ) {
+                            Text("Salvar resultado")
+                        }
+                    }
+                }
+            }
+        ) { padding ->
+            Column(Modifier.padding(padding).fillMaxSize()) {
                 Scoreboard(
                     homeTeam = homeTeam,
                     awayTeam = awayTeam,
@@ -125,80 +173,49 @@ fun MatchResultDialog(
 
                 HorizontalDivider()
 
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        selectedTeam?.name.orEmpty(),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        if (remaining > 0) {
-                            "$taken de $PENALTIES_PER_TEAM cobranças registradas"
-                        } else {
-                            "Série encerrada: $PENALTIES_PER_TEAM cobranças registradas"
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (remaining > 0) {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        }
-                    )
-                }
+                Text(
+                    if (remaining > 0) {
+                        "${selectedTeam?.name.orEmpty()} · $taken de $PENALTIES_PER_TEAM cobranças"
+                    } else {
+                        "${selectedTeam?.name.orEmpty()} · série encerrada"
+                    },
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (remaining > 0) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                )
 
-                if (shooters.isEmpty()) {
+                if (squad.isEmpty()) {
                     Text(
-                        "Cadastre jogadores para registrar as cobranças.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        "Este time não tem jogadores nesta temporada. Cadastre o elenco em Times.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
                     )
                 } else {
-                    shooters.forEach { player ->
-                        val attempt = attempts[player.id] ?: Attempt.NONE
-                        ShooterRow(
-                            player = player,
-                            attempt = attempt,
-                            enabled = attempt != Attempt.NONE || remaining > 0,
-                            onChange = { attempts[player.id] = it }
-                        )
+                    LazyColumn(
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            start = 16.dp, end = 16.dp, bottom = 16.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(squad, key = { it.id }) { player ->
+                            val attempt = attempts[player.id] ?: Attempt.NONE
+                            ShooterRow(
+                                player = player,
+                                attempt = attempt,
+                                enabled = attempt != Attempt.NONE || remaining > 0,
+                                onChange = { attempts[player.id] = it }
+                            )
+                        }
                     }
                 }
-
-                HorizontalDivider()
-                KeeperSection(
-                    keepers = keepers,
-                    selectedId = keeperId,
-                    saves = savesForKeeper,
-                    onSelect = { if (showingHome) homeKeeperId = it else awayKeeperId = it }
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    val goals = attempts.filterValues { it == Attempt.SCORED }.mapValues { 1 }
-                    val misses = attempts.filterValues { it == Attempt.MISSED }.mapValues { 1 }
-                    val saves = buildMap {
-                        if (homeKeeperId.isNotBlank() && awayMisses > 0) put(homeKeeperId, awayMisses)
-                        if (awayKeeperId.isNotBlank() && homeMisses > 0) put(awayKeeperId, homeMisses)
-                    }
-                    onConfirm(homeGoals, awayGoals, goals, misses, saves)
-                }
-            ) { Text("Salvar") }
-        },
-        dismissButton = {
-            if (match.finished) {
-                TextButton(
-                    onClick = {
-                        onClearResult()
-                        onDismiss()
-                    }
-                ) { Text("Limpar placar") }
-            } else {
-                TextButton(onClick = onDismiss) { Text("Cancelar") }
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -211,7 +228,7 @@ private fun Scoreboard(
     onSelect: (String) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SelectableTeam(
@@ -244,7 +261,7 @@ private fun SelectableTeam(
     modifier: Modifier = Modifier
 ) {
     val borderColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+        if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
         label = "teamBorder"
     )
 
@@ -255,12 +272,12 @@ private fun SelectableTeam(
     ) {
         Box(
             modifier = Modifier
-                .size(60.dp)
-                .border(width = if (selected) 3.dp else 1.dp, color = borderColor, shape = CircleShape)
-                .padding(4.dp),
+                .size(64.dp)
+                .border(width = 3.dp, color = borderColor, shape = CircleShape)
+                .padding(5.dp),
             contentAlignment = Alignment.Center
         ) {
-            team?.let { TeamBadge(it, size = 48) }
+            team?.let { TeamBadge(it, size = 50) }
         }
         Text(
             team?.name.orEmpty(),
@@ -269,27 +286,27 @@ private fun SelectableTeam(
             textAlign = TextAlign.Center,
             maxLines = 2
         )
+        Text(
+            if (selected) "Escalando" else "Tocar para escalar",
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+        )
     }
 }
 
 @Composable
-private fun ShooterRow(
-    player: Player,
-    attempt: Attempt,
-    enabled: Boolean,
-    onChange: (Attempt) -> Unit
-) {
+private fun ShooterRow(player: Player, attempt: Attempt, enabled: Boolean, onChange: (Attempt) -> Unit) {
     val background = when (attempt) {
         Attempt.SCORED -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
         Attempt.MISSED -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
         Attempt.NONE -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
     }
 
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = background,
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Surface(shape = RoundedCornerShape(14.dp), color = background, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -332,11 +349,11 @@ private fun ShooterRow(
 
 @Composable
 private fun AttemptButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     description: String,
     selected: Boolean,
     enabled: Boolean,
-    color: androidx.compose.ui.graphics.Color,
+    color: Color,
     onClick: () -> Unit
 ) {
     val tint = when {
@@ -348,10 +365,7 @@ private fun AttemptButton(
     Surface(
         shape = CircleShape,
         color = if (selected) color else MaterialTheme.colorScheme.surface,
-        modifier = Modifier
-            .padding(start = 6.dp)
-            .size(36.dp)
-            .clickable(enabled = enabled, onClick = onClick)
+        modifier = Modifier.padding(start = 6.dp).size(38.dp).clickable(enabled = enabled, onClick = onClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(18.dp))
@@ -359,42 +373,55 @@ private fun AttemptButton(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun KeeperSection(
-    keepers: List<Player>,
+    squad: List<Player>,
     selectedId: String,
     saves: Int,
+    teamName: String,
     onSelect: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Quem defendeu", style = MaterialTheme.typography.labelLarge)
-        Text(
-            "Qualquer jogador pode ir ao gol. As defesas vão para quem estiver selecionado.",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        if (keepers.isEmpty()) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                Icons.Default.SportsHandball,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
             Text(
-                "Este time não tem jogadores nesta temporada. Cadastre o elenco em Times para registrar as cobranças.",
-                style = MaterialTheme.typography.bodySmall,
+                "Quem defendeu pelo $teamName",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        }
+
+        if (squad.isEmpty()) {
+            Text(
+                "Sem jogadores cadastrados neste time.",
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error
             )
             return@Column
         }
 
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            keepers.forEach { keeper ->
+            squad.forEach { player ->
                 FilterChip(
-                    selected = keeper.id == selectedId,
-                    onClick = { onSelect(keeper.id) },
-                    label = { Text(keeper.name) },
-                    leadingIcon = if (keeper.isGoalkeeper) {
-                        { Icon(Icons.Default.SportsHandball, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    selected = player.id == selectedId,
+                    onClick = { onSelect(player.id) },
+                    label = { Text(player.name) },
+                    leadingIcon = if (player.isGoalkeeper) {
+                        {
+                            Icon(
+                                Icons.Default.SportsHandball,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     } else {
                         null
                     }
@@ -403,7 +430,7 @@ private fun KeeperSection(
         }
 
         Text(
-            "$saves ${if (saves == 1) "defesa" else "defesas"} nesta partida, a partir das cobranças perdidas pelo adversário",
+            "$saves ${if (saves == 1) "defesa" else "defesas"} nesta partida",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -526,6 +526,7 @@ A identidade parte do escudo do Fut Soccer Brasil: azul-marinho profundo com det
 | Tipografia | Material 3 padrão, títulos em peso alto |
 | Formulários | Cantos de 16 dp, ícone à esquerda, container tonal |
 | Cartão de partida | Escudos nas extremidades, placar em destaque ao centro, sem botões auxiliares |
+| Registro do resultado | Tela cheia: placar fixo no topo, cobranças roláveis ao centro, defensor e confirmação fixos embaixo |
 | Navegação entre rodadas | Uma rodada por tela, com deslize lateral e seletor no topo |
 
 ---
